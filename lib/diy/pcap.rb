@@ -10,7 +10,7 @@ module DIY
       @device_name = FFI::PCap.dump_devices[0][0]
       yield self
       @driver = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-      pause_for_user
+      #~ pause_for_user
       run
     end
     

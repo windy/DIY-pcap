@@ -3,9 +3,9 @@ require 'diy/pcap'
 
 $SERVER = true
 
-if ARGV[1].nil?
+if ARGV[0].nil?
   puts "Usage: #{File.basename(__FILE__)} file"
   exit 0
 end
 
-require File.join( File.pwd, ARGV[1] )
+require File.join( Dir.pwd, ARGV[0] )
