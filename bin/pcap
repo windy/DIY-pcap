@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift File.join( File.dirname(__FILE__), '..', 'lib' )
 require 'diy/pcap'
+require 'diy/task'
 
 if ARGV[0].nil?
   puts "Usage: #{File.basename(__FILE__)} file"
