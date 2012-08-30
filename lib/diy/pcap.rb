@@ -1,5 +1,6 @@
 require 'ffi/pcap'
 require 'logger'
+require 'diy/version'
 module DIY
   class PCAP
     def initialize
