@@ -1,12 +1,9 @@
 require 'spec_helper'
 describe DIY::Queue do
   
-  before(:all) do 
+  before(:each) do
     @device_name = FFI::PCap.dump_devices[0][0]
     @live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-  end
-  
-  before(:each) do
     @offline = FFI::PCap::Offline.new('../simple/pcaps/gre.pcap')
   end
   
