@@ -5,7 +5,7 @@ DIY-pcap
 
 自定义发包工具,可以轻易实现包交互, 实现是来自 [ffi-pcap](https://github.com/sophsec/ffi-pcap/) 的二次封装.
 
-## 使用方法
+## 使用方法,完全自定义发包 ( 一 )
 
 1. 安装很简单
 
@@ -35,5 +35,21 @@ DIY-pcap
   * 服务端,执行 `rpcap spec.rb`
   
   * 本机, 执行 `pcap spec.rb`
+  
+## 使用方法, 回放pcap报文 ( 二 )
+
+1. 安装同上
+
+2. 准备好 pcap 文件放在 `pcaps/simple.pcap` 目录下, 创建文件 spec.rb:
+
+    ```ruby
+          DIY::Builder.new do
+            pcapfile "pcaps/simple.pcap"
+            use SimpleStrategy.new
+          end
+    ```
+3. 同上
+
+4. (其他说明) 扩展策略, 自定义日志, 修改报文内容.
   
 OK, 祝你好运.
