@@ -53,7 +53,25 @@ describe DIY::Queue do
     q.next_send_pkt
     q.peek.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
     q.pop.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
-    q.peek.should be_nil
+    q.peek.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt3' ) )
+    q.pop
+    q.peek.should == nil
+  end
+  
+  it "#delete" do
+    q = DIY::Queue.new(@offline)
+    q.stub(:wait_until).and_return(true)
+    q.next_send_pkt
+    q.delete(File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )).should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
+    q.pop
+    q.peek.should == nil
+  end
+  
+  it "#delete_at" do
+    q = DIY::Queue.new(@offline)
+    q.stub(:wait_until).and_return(true)
+    q.next_send_pkt
+    q.delete_at(0).should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
   end
 
 end
