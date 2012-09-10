@@ -75,29 +75,3 @@ describe DIY::Queue do
   end
 
 end
-
-describe DIY::Controller do
-  before(:each) do 
-    @device_name = FFI::PCap.dump_devices[0][0]
-    @live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-    @offline = FFI::PCap::Offline.new('../simple/pcaps/gre.pcap')
-  end
-  
-  it "#run" do
-    q = nil
-    server = Thread.new do
-      q = DIY::Queue.new(@offline)
-      q.stub(:server?).and_return(true)
-      DIY::Queue.stub(:new).and_return(q)
-      s = DIY::Controller.new(@live, @offline)
-      s.run
-    end
-    device_name = FFI::PCap.dump_devices[0][0]
-    live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-    offline = FFI::PCap::Offline.new('../simple/pcaps/gre.pcap')
-    c = DIY::Controller.new(live, offline)
-    q.wait_until { q.peek != nil }
-    lambda { c.run ; server.join }.should_not raise_error
-  end
-  
-end
