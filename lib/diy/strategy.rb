@@ -25,6 +25,7 @@ module DIY
     end
   end
   
+  # 一个简单的例子
   class SimpleStrategy < BasicStrategy
     def call(hope_pkt, recv_pkt, queue)
       if hope_pkt == recv_pkt

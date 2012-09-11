@@ -18,6 +18,10 @@ module DIY
       @strategies.unshift(what)
     end
     
+    def before_send(&block)
+      @before_send_hook = block
+    end
+    
     def pcapfile(pcaps)
       @offline = FFI::PCap::Offline.new(pcaps)
     end
@@ -29,6 +33,7 @@ module DIY
       @strategies.each { |builder| @strategy_builder.add(builder) }
       find_device
       controller = Controller.new( @live, @offline, @strategy_builder )
+      controller.before_send(&@before_send_hook)
       controller.run
     end
     

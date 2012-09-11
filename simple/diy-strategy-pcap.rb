@@ -7,8 +7,14 @@ end
 
 nomac = NoMacEqualStrategy.new
 
+change_mac = lambda do |pkt|
+  pkt[6..11] = "aaaaaa"
+  return pkt
+end
+
 builder = DIY::Builder.new do
   use nomac
+  before_send change_mac
   pcapfile "pcaps/gre.pcap"
 end
 

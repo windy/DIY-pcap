@@ -119,7 +119,7 @@ module DIY
     end
     
     def wait_until( timeout = 20, &block )
-      timeout(timeout) do
+      timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} senconds") ) do
         loop do
           break if block.call
           sleep 0.01
