@@ -3,7 +3,7 @@ module DIY
   class StrategyBuilder
     def initialize(queue)
       @ins = []
-      @logger = Logger.new(STDOUT)
+      @logger = DIY::Logger
       @queue = queue
     end
     attr_reader :queue
