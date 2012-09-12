@@ -27,7 +27,7 @@ module DIY
     
     def recv_pkt_queue(queue, recv_pkt)
       hope_pkt = queue.peek
-      logger.debug("recv_pkt, I hope: #{ hope_pkt[0..10].dump rescue nil }...")
+      #~ logger.debug("recv_pkt, I hope: #{ hope_pkt[0..10].dump rescue nil }...")
       
       return if hope_pkt.nil?
       
@@ -49,7 +49,7 @@ module DIY
           elsif ret == Strategy::FAIL
             logger.warn("pkt fail:")
           elsif ret == Strategy::NONE
-            logger.debug("pkt jumpped:")
+            #~ logger.debug("pkt jumpped:")
             next
           end # end of if
         end # end of begin

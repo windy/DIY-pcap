@@ -24,15 +24,18 @@ module DIY
       
       begin
         @queue.do_loop do |pkt|
+          logger.info "send pkt: #{pp(pkt)}"
           @sender.inject(pkt)
         end
         @recver_t.join
-      rescue HopePacketTimeoutError
+      rescue HopePacketTimeoutError =>e
         # next offline
+        old = e
         begin
           @queue.clear_and_next_pcap
         rescue EOFError
           @recver.stop
+          raise old
         end
       rescue EOFError
         @recver.stop

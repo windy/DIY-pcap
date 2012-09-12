@@ -25,4 +25,19 @@ describe DIY::Offline do
     offline.next_pcap
     lambda { offline.next_pcap }.should raise_error(DIY::EOFError)
   end
+  
+  it "should get correct first_pkt flag" do
+    files = [ "helper/gre.pcap", "helper/app.pcap" ]
+    offline = DIY::Offline.new(files)
+    offline.next
+    offline.should be_first_pkt
+    offline.next
+    offline.should_not be_first_pkt
+    offline.next_pcap
+    offline.next
+    offline.should be_first_pkt
+    offline.next
+    offline.should_not be_first_pkt
+  end
+  
 end

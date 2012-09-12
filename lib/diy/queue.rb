@@ -3,12 +3,14 @@ require 'timeout'
 module DIY
   class Queue
     
-    def initialize(offline)
+    def initialize(offline, force_server = false)
       @expect_recv_queue = []
       @offline = offline
       @m = Mutex.new
       # 暂存 next_send_pkt 数据
       @tmp_send_pkt = nil
+      
+      @force_server = force_server
     end
     
     def expect_recv_queue
@@ -71,7 +73,17 @@ module DIY
       raise EOFError, " no pkt to send" unless pkt
       pkt = pkt.copy
       
+      need_wait_for_seconds = nil
+      # 刚切换pcap文件后需要等待
+      if @offline.first_pkt?
+        need_wait_for_seconds = true
+      end
+      
       recv_pkt = write_recv_pkt
+      
+      if need_wait_for_seconds
+        wait_for_seconds
+      end
       
       yield(pkt.body) if block_given?
       
@@ -79,6 +91,11 @@ module DIY
       pkt.body
     end
     alias_method :next, :next_send_pkt
+    
+    def wait_for_seconds
+      DIY::Logger.info("new pcap file, sleep 3...")
+      sleep 3
+    end
     
     def write_recv_pkt
       while ( (recv_pkt = @offline.next) && ( set_first_gout(recv_pkt.body); comein?(recv_pkt.body) ) )
@@ -118,7 +135,7 @@ module DIY
     end
     
     def server?
-      $SERVER
+      $SERVER || @force_server
     end
     
     def judge_direct(pkt,&block)

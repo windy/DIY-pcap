@@ -1,8 +1,9 @@
 module DIY
   class Builder
-    def initialize(&block)
+    def initialize(server = false, &block)
       @strategies = []
       instance_eval(&block)
+      @server = server
     end
     
     def find_device
@@ -28,7 +29,7 @@ module DIY
     
     def run
       @offline ||= FFI::PCap::Offline.new('pcaps/example.pcap')
-      @queue = Queue.new(@offline)
+      @queue = Queue.new(@offline, @server)
       @strategy_builder = DIY::StrategyBuilder.new(@queue)
       @strategies.each { |builder| @strategy_builder.add(builder) }
       find_device

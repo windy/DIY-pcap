@@ -9,16 +9,31 @@ module DIY
         @off = FFI::PCap::Offline.new(file_or_files[0])
         @position = 0
       end
+      @new_pcap = true
     end
     
     def next
       pkt = @off.next
-      if pkt.nil? and @file_or_files.kind_of?(Array) and @position < @file_or_files.size - 1
-        @position += 1
-        DIY::Logger.info("swith to next file: #{@file_or_files[@position]}")
-        @off = FFI::PCap::Offline.new(@file_or_files[@position])
+      if pkt.nil?
+        begin
+          next_pcap
+          pkt = @off.next
+        rescue EOFError
+          pkt = nil
+        end
+      end
+      
+      if @new_pcap
+        @first_pkt = true
+        @new_pcap = false
+      else
+        @first_pkt = false
       end
       pkt
+    end
+    
+    def first_pkt?
+      @first_pkt
     end
     
     def next_pcap
@@ -26,7 +41,8 @@ module DIY
         raise EOFError, " end of pcaps "
       end
       @position += 1
-      off = FFI::PCap::Offline.new(@file_or_files[@position])
+      @off = FFI::PCap::Offline.new(@file_or_files[@position])
+      @new_pcap = true
     end
     
   end
