@@ -44,6 +44,17 @@ module DIY
       @expect_recv_queue[0]
     end
     
+    def clear_and_next_pcap
+      @offline.next_pcap
+      clear
+    end
+    
+    def clear
+      @m.synchronize {
+        return @expect_recv_queue.clear
+      }
+    end
+    
     # 处理发送报文
     #
     # 等待接受报文完成后, 返回发送报文, 并重新填充接受报文

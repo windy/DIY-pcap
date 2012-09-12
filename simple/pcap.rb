@@ -7,7 +7,7 @@ ss = DIY::SimpleStrategy.new
 
 a = DIY::Builder.new do 
   use ss
-  pcapfile "pcaps/gre.pcap"
+  pcapfile Dir["pcaps/*.pcap"]
 end
 
 a.run

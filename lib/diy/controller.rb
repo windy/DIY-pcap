@@ -1,7 +1,7 @@
 # encoding : utf-8
 module DIY
   class Controller
-    def initialize(live, offline, strategy)
+    def initialize(live, strategy)
       @live = live
       @recver = Recver.new(@live)
       @recver.add_watcher(strategy)
@@ -29,7 +29,11 @@ module DIY
         @recver_t.join
       rescue HopePacketTimeoutError
         # next offline
-        raise
+        begin
+          @queue.clear_and_next_pcap
+        rescue EOFError
+          @recver.stop
+        end
       rescue EOFError
         @recver.stop
       end

@@ -5,4 +5,8 @@ module DIY
   
   # 期望报文等待超时
   class HopePacketTimeoutError < Error; end
+  
+  # 没有报文被指定时
+  class ZeroOfflineError < Error; end
+  
 end

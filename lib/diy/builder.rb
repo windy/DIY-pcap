@@ -23,7 +23,7 @@ module DIY
     end
     
     def pcapfile(pcaps)
-      @offline = FFI::PCap::Offline.new(pcaps)
+      @offline = DIY::Offline.new(pcaps)
     end
     
     def run
@@ -32,7 +32,7 @@ module DIY
       @strategy_builder = DIY::StrategyBuilder.new(@queue)
       @strategies.each { |builder| @strategy_builder.add(builder) }
       find_device
-      controller = Controller.new( @live, @offline, @strategy_builder )
+      controller = Controller.new( @live, @strategy_builder )
       controller.before_send(&@before_send_hook)
       controller.run
     end

@@ -45,7 +45,7 @@ DIY-pcap
     ```ruby
           DIY::Builder.new do
             pcapfile "pcaps/simple.pcap"
-            use SimpleStrategy.new
+            use DIY::SimpleStrategy.new
           end
     ```
 3. 同上
