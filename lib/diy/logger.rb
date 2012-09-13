@@ -2,28 +2,52 @@ require 'logger'
 
 module DIY
   class Logger
+    @@logger_container = []
     @@logger = ::Logger.new(STDOUT)
-    @@logger.level = ::Logger::DEBUG
+    @@logger.level = ::Logger::INFO
     @@logger.datetime_format = "%d-%b-%Y %H:%M:%S"
+    @@logger_container.unshift @@logger
     class <<self
       def debug(*arg)
-        @@logger.debug(*arg)
+        @@logger_container.each do |logger|
+          logger.debug(*arg)
+        end
       end
       
       def info(*arg)
-        @@logger.info(*arg)
+        @@logger_container.each do |logger|
+          logger.info(*arg)
+        end
       end
       
       def warn(*arg)
-        @@logger.warn(*arg)
+        @@logger_container.each do |logger|
+          logger.warn(*arg)
+        end
       end
       
       def error(*arg)
-        @@logger.error(*arg)
+        @@logger_container.each do |logger|
+          logger.error(*arg)
+        end
       end
       
       def set(logger)
         @@logger = logger
+      end
+      
+      def add(logger)
+        @@logger_container << logger
+      end
+      alias << add
+      
+      def clear
+        @@logger_container.clear
+      end
+      
+      def clear_and_add(logger)
+        clear
+        add(logger)
       end
     end
     

@@ -8,6 +8,7 @@ module DIY
     
     def find_device
       @device_name ||= FFI::PCap.dump_devices[0][0]
+      DIY::Logger.info( "Initialize Live: #{@device_name}" )
       @live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
     end
     
@@ -24,8 +25,10 @@ module DIY
     end
     
     def pcapfile(pcaps)
+      DIY::Logger.info( "Initialize Offline: #{pcaps.to_a.join(', ')}" )
       @offline = DIY::Offline.new(pcaps)
     end
+    alias pcapfiles pcapfile
     
     def run
       @offline ||= FFI::PCap::Offline.new('pcaps/example.pcap')

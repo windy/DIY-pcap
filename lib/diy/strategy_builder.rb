@@ -1,4 +1,5 @@
-  require 'logger'
+# encoding : utf-8
+require 'logger'
 module DIY
   class StrategyBuilder
     def initialize(queue)
@@ -27,7 +28,7 @@ module DIY
     
     def recv_pkt_queue(queue, recv_pkt)
       hope_pkt = queue.peek
-      #~ logger.debug("recv_pkt, I hope: #{ hope_pkt[0..10].dump rescue nil }...")
+      logger.debug("recv_pkt, I hope: #{ hope_pkt[0..10].dump rescue nil }...")
       
       return if hope_pkt.nil?
       
@@ -35,19 +36,23 @@ module DIY
         begin
         ret = strategy.call(hope_pkt, recv_pkt, queue)
         rescue Exception => e
-          logger.error("strategy call exception: #{e.class} -> #{e.message}")
+          logger.error("user strategy exception: #{e.class} -> #{e.message}")
           raise
-          #仅仅忽略
+          #TODO 也许仅仅忽略?
         else
           if ret == Strategy::OK
             logger.info("pkt same:")
             queue.pop
             return
           elsif ret == Strategy::OK_NO_POP
-            logger.info("pkt same but no pop:")
+            logger.info("pkt skip:")
             return
           elsif ret == Strategy::FAIL
             logger.warn("pkt fail:")
+            logger.warn("pkt fail: hope_pkt is #{Utils.pp(hope_pkt)}")
+            logger.warn("pkt fail: recv_pkt is #{Utils.pp(recv_pkt)}")
+            #TODO 也许需要将Queue输出?
+            raise UnExpectPacketError, "strategy FAIL"
           elsif ret == Strategy::NONE
             #~ logger.debug("pkt jumpped:")
             next

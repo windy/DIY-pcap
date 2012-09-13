@@ -24,7 +24,7 @@ module DIY
       
       begin
         @queue.do_loop do |pkt|
-          logger.info "send pkt: #{pp(pkt)}"
+          logger.info "send pkt: #{Utils.pp(pkt)}"
           @sender.inject(pkt)
         end
         @recver_t.join

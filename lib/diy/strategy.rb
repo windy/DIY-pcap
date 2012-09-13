@@ -3,7 +3,7 @@ module DIY
   # 具体返回值含义见 @BasicStrategy
   class Strategy
     OK = true
-    OK_NO_POP = 1
+    OK_NO_POP = SKIP = 1
     FAIL = false
     NONE = nil
   end
@@ -18,6 +18,7 @@ module DIY
     # @return: 
     # OK : 匹配, 可以进行下一个报文的处理
     # OK_NO_POP: 匹配了接收队列中的报文, 但是不需要框架自动pop掉期望报文( 注意, 你需要自行处于报文 )
+    # SKIP: 同上, 可用于跳过以后所有策略队列使用.
     # FAIL: 肯定失败时使用
     # NONE: 不匹配, 让框架进行下一个报文匹配
     def call(hope_pkt, recv_pkt, queue)
