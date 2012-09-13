@@ -113,7 +113,7 @@ module DIY
     end
     
     def write_recv_pkt
-      while ( (recv_pkt = @offline.next) && ( set_first_gout(recv_pkt.body); comein?(recv_pkt.body) ) )
+      while ( (recv_pkt = @offline.next) && ( @offline.first_pkt? && set_first_gout(recv_pkt.body); comein?(recv_pkt.body) ) )
         @m.synchronize {
           @expect_recv_queue << [ recv_pkt.copy.body, @offline.fullname ]
         }
@@ -129,7 +129,7 @@ module DIY
     end
     
     def set_first_gout(pkt)
-      return @src_mac if @src_mac
+      #~ return @src_mac if @src_mac
       if pkt.size < 12
         raise PktError,"can't find src mac: error format packet"
       end

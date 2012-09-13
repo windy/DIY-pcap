@@ -41,6 +41,7 @@ module DIY
         raise EOFError, " end of pcaps "
       end
       @position += 1
+      DIY::Logger.info("pcap file changed: #{@file_or_files[@position]}")
       @off = FFI::PCap::Offline.new(@file_or_files[@position])
       @num = 0
     end

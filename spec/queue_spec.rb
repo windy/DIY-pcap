@@ -45,8 +45,7 @@ describe DIY::Queue do
     q.stub(:wait_for_seconds).and_return(nil)
     pkt =  File.read( File.join( File.dirname(__FILE__), 'helper/pkt1' ) )
     pkt2 =  File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
-    q.set_first_gout(pkt)
-    q.set_first_gout(pkt2).should == pkt[6..11]
+    q.set_first_gout(pkt).should == pkt[6..11]
     q.comein?(pkt).should == true
     q.comein?(pkt2).should == false
     $SERVER = nil
