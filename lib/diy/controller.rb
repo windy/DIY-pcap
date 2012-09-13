@@ -30,9 +30,11 @@ module DIY
         @recver_t.join
       rescue HopePacketTimeoutError =>e
         # next offline
+        DIY::Logger.warn("Timeout: #{e}")
         old = e
         begin
           @queue.clear_and_next_pcap
+          retry
         rescue EOFError
           @recver.stop
           raise old

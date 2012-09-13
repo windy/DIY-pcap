@@ -1,3 +1,5 @@
+# encoding : utf-8
+
 module DIY
   class Offline
     def initialize( file_or_files)
@@ -10,6 +12,7 @@ module DIY
         @position = 0
       end
       @new_pcap = true
+      @num = 0
     end
     
     def next
@@ -23,17 +26,14 @@ module DIY
         end
       end
       
-      if @new_pcap
-        @first_pkt = true
-        @new_pcap = false
-      else
-        @first_pkt = false
-      end
+      #record num of pkt
+      @num += 1 if pkt
+      
       pkt
     end
     
     def first_pkt?
-      @first_pkt
+      @num == 1
     end
     
     def next_pcap
@@ -42,7 +42,19 @@ module DIY
       end
       @position += 1
       @off = FFI::PCap::Offline.new(@file_or_files[@position])
-      @new_pcap = true
+      @num = 0
+    end
+    
+    def filename
+      if @file_or_files.kind_of?(String)
+        @file_or_files
+      else
+        @file_or_files[@position]
+      end
+    end
+    
+    def fullname
+      "pkt: `#{filename}: #{@num}th' "
     end
     
   end

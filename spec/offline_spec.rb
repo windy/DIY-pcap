@@ -31,13 +31,17 @@ describe DIY::Offline do
     offline = DIY::Offline.new(files)
     offline.next
     offline.should be_first_pkt
+    offline.fullname.should == "pkt: `helper/gre.pcap: 1th' "
     offline.next
     offline.should_not be_first_pkt
+    offline.fullname.should == "pkt: `helper/gre.pcap: 2th' "
     offline.next_pcap
     offline.next
+    offline.fullname.should == "pkt: `helper/app.pcap: 1th' "
     offline.should be_first_pkt
     offline.next
     offline.should_not be_first_pkt
+    offline.fullname.should == "pkt: `helper/app.pcap: 2th' "
   end
   
 end

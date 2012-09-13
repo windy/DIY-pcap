@@ -4,7 +4,8 @@ describe DIY::Queue do
   before(:each) do
     @device_name = FFI::PCap.dump_devices[0][0]
     @live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-    @offline = DIY::Offline.new('../simple/pcaps/gre.pcap')
+    @pcap_name = "../simple/pcaps/gre.pcap"
+    @offline = DIY::Offline.new(@pcap_name)
   end
   
   it "#next_send_pkt" do
@@ -13,8 +14,8 @@ describe DIY::Queue do
     q.stub(:wait_until).and_return(true)
     q.stub(:wait_for_seconds).and_return(nil)
     q.next_send_pkt.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt1' ) )
-    pkt1 = q.instance_variable_get("@expect_recv_queue")[0]
-    pkt2 = q.instance_variable_get("@expect_recv_queue")[1]
+    pkt1 = q.instance_variable_get("@expect_recv_queue")[0][0]
+    pkt2 = q.instance_variable_get("@expect_recv_queue")[1][0]
     q.instance_variable_get("@expect_recv_queue").size.should == 2
     pkt1.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
     pkt2.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt3' ) )
@@ -30,10 +31,11 @@ describe DIY::Queue do
     q.stub(:wait_until).and_return(true)
     q.stub(:wait_for_seconds).and_return(nil)
     q.next_send_pkt.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt2' ) )
-    q.instance_variable_get("@expect_recv_queue").should == [ File.read( File.join( File.dirname(__FILE__), 'helper/pkt1' ) )  ]
+    q.instance_variable_get("@expect_recv_queue")[0][0].should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt1' ) ) 
     q.instance_variable_set("@expect_recv_queue", [])
     q.next_send_pkt.should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt3' ) )
-    q.instance_variable_get("@expect_recv_queue").should == [ File.read( File.join( File.dirname(__FILE__), 'helper/pkt4' )), File.read( File.join( File.dirname(__FILE__), 'helper/pkt5' )) ]
+    q.instance_variable_get("@expect_recv_queue")[0][0].should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt4' ))
+    q.instance_variable_get("@expect_recv_queue")[1][0].should == File.read( File.join( File.dirname(__FILE__), 'helper/pkt5' ))
     $SERVER = nil
   end
   

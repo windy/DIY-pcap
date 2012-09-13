@@ -20,16 +20,17 @@ module DIY
     def pop
       return nil if @expect_recv_queue.empty?
       @m.synchronize {
-        return @expect_recv_queue.shift
+        return @expect_recv_queue.shift[0]
       }
     end
     
     def delete(what)
-      if @expect_recv_queue.include?(what)
+      if @expect_recv_queue.find { |i| i[0] == what }
         @m.synchronize {
-          if @expect_recv_queue.include?(what)
-            return @expect_recv_queue.delete(what)
-          end
+            if @expect_recv_queue.find { |i| i[0] == what }
+              @expect_recv_queue.delete_if { |i| i[0] == what }
+              return what
+            end
         }
       end
       return nil
@@ -37,13 +38,19 @@ module DIY
     
     def delete_at(index)
       @m.synchronize {
-        return @expect_recv_queue.delete_at(index)
+        deleted = @expect_recv_queue.delete_at(index)
+        return deleted.nil? ? nil : deleted[0]
       }
     end
     
     def peek
       return nil if @expect_recv_queue.empty?
-      @expect_recv_queue[0]
+      @expect_recv_queue[0][0]
+    end
+    
+    def peek_full
+      return nil if @expect_recv_queue.empty?
+      @expect_recv_queue[0]      
     end
     
     def clear_and_next_pcap
@@ -62,15 +69,23 @@ module DIY
     # 等待接受报文完成后, 返回发送报文, 并重新填充接受报文
     # TODO: 支持多个pcap文件
     def next_send_pkt(&block)
-      wait_until { @expect_recv_queue.empty? }
+      begin
+        wait_until { @expect_recv_queue.empty? }
+      rescue HopePacketTimeoutError
+        raise HopePacketTimeoutError, "#{peek_full && peek_full[1]}"
+      end
       if @tmp_send_pkt
         pkt = @tmp_send_pkt
         @tmp_send_pkt = nil
       else
         pkt = write_recv_pkt
-        wait_until { @expect_recv_queue.empty? }
+        begin
+          wait_until { @expect_recv_queue.empty? }
+        rescue HopePacketTimeoutError
+          raise HopePacketTimeoutError, "#{peek_full && peek_full[1]}"
+        end
       end
-      raise EOFError, " no pkt to send" unless pkt
+      raise EOFError, " no pkt to send " unless pkt
       pkt = pkt.copy
       
       need_wait_for_seconds = nil
@@ -100,7 +115,7 @@ module DIY
     def write_recv_pkt
       while ( (recv_pkt = @offline.next) && ( set_first_gout(recv_pkt.body); comein?(recv_pkt.body) ) )
         @m.synchronize {
-          @expect_recv_queue << recv_pkt.copy.body
+          @expect_recv_queue << [ recv_pkt.copy.body, @offline.fullname ]
         }
       end
       recv_pkt
