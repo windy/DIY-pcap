@@ -17,11 +17,11 @@ module DIY
     attr_accessor :timeout, :dir, :device_name
     
     def send(pkt_dir)
-      @pkt_stack << Packet.new( pkt_dir2pkt(pkt_dir), Packet::SEND)
+      @pkt_stack << PacketEx.new( pkt_dir2pkt(pkt_dir), PacketEx::SEND)
     end
     
     def recv(pkt_dir)
-      @pkt_stack << Packet.new( pkt_dir2pkt(pkt_dir), Packet::RECV)
+      @pkt_stack << PacketEx.new( pkt_dir2pkt(pkt_dir), PacketEx::RECV)
     end
     
     def pkt_dir2pkt(dir)
@@ -80,7 +80,7 @@ module DIY
     end
     
     def logger
-      @@logger ||= Logger.new(STDOUT)
+      @@logger ||= DIY::Logger
     end
     
     def logger=(logger)
@@ -89,7 +89,7 @@ module DIY
     
   end
   
-  class Packet
+  class PacketEx
     SEND = 1
     RECV = 0
     def initialize( pkt, pos )
