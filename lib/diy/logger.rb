@@ -34,6 +34,7 @@ module DIY
       
       def set(logger)
         @@logger = logger
+        clear_and_add(logger)
       end
       
       def add(logger)
