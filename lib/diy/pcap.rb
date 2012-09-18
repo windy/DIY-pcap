@@ -72,10 +72,10 @@ module DIY
       logger.info("I hope pkt: #{pkt[0..10].dump}")
       @driver.loop do |this, new_pkt|
         #~ logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
-        new_pkt = fill60(new_pkt)
-        if new_pkt.body == pkt
-          logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
-          logger.info "got the same pkt,stop"
+        new_pkt_body = fill60(new_pkt.body)
+        if new_pkt_body == pkt
+          logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt_body[0..10].dump}..." )
+          logger.info "got the same pkt,next"
           return true
         end
       end
