@@ -18,6 +18,7 @@ module DIY
     def find_worker_keepers
       @curi ||= "druby://localhost:7878"
       @suri ||= "druby://localhost:7879"
+      DRb.start_service
       @client = DRbObject.new_with_uri(@curi)
       @server = DRbObject.new_with_uri(@suri)
     end

@@ -37,6 +37,12 @@ module DIY
         clear_and_add(logger)
       end
       
+      def level=(level)
+        @@logger_container.each do |logger|
+          logger.level = level
+        end
+      end
+      
       def add(logger)
         @@logger_container << logger
       end

@@ -1,12 +1,67 @@
 $LOAD_PATH.unshift File.join( File.dirname(__FILE__), '..', 'lib' )
+require 'rubygems'
 require 'diy-pcap'
 require 'diy/task'
 
-$SERVER = true
+require 'optparse'
 
-if ARGV[0].nil?
-  puts "Usage: #{File.basename(__FILE__)} file"
-  exit 0
+options = {
+  :ip => "0.0.0.0:7879",
+}
+
+OptionParser.new do |opts|
+  
+  opts.on("-f file", "File will be parsed") do |v|
+    options[:file] = v
+  end
+  
+  opts.on("-i ip", "--ip ip", "client or server : 0.0.0.0 or 0.0.0.0:7879", "default is 0.0.0.0:7879") do |v|
+    options[:ip] = v
+  end
+  
+  opts.on("-n device_name", "--name device_name", "Send or Recv device name") do |v|
+    options[:device_name] = v
+  end
+  
+  opts.on_tail("--show", "Show all devices name and exit") do 
+    require 'diy/device_finder'
+    DIY::DeviceFinder.pp_devices
+    exit 0
+  end
+  
+  opts.on_tail('-v','--version', 'Show version') do
+    puts DIY::PCAP::VERSION
+    exit 0
+  end
+  
+  opts.on_tail('-V', 'detail mode') do
+    DIY::Logger.level = ::Logger::DEBUG
+  end
+  
+  opts.on_tail('-h','--help', 'Show this help') do
+    puts opts
+    exit 0
+  end
+end.parse!
+
+if options[:file]
+  require File.join( Dir.pwd, ARGV[0] )
+else
+  ip = options[:ip]
+  if ip.include?(':')
+    uri = "druby://#{ip}"
+  else
+    uri = "druby://#{ip}:7879"
+  end
+  
+  if options[:device_name]
+    device_name = options[:device_name]
+  else
+    require 'diy/device_finder'
+    device_name = DIY::DeviceFinder.smart_select
+  end
+  DIY::Logger.info( "Initialize Live: #{device_name}" )
+  device = FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::Handler, :promisc => true)
+  worker = DIY::Worker.new(device)
+  DIY::WorkerKeeper.new(worker, uri).run
 end
-
-require File.join( Dir.pwd, ARGV[0] )

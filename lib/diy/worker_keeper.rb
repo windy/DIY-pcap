@@ -11,8 +11,15 @@ module DIY
     end
     
     def run
+      DIY::Logger.info "serving at #{@uri}"
       DRb.start_service(@uri, @worker)
-      DRb.thread.join
+      running = true
+      trap("INT") { running = false }
+      while running
+        sleep 0.5
+      end
+      DIY::Logger.info "bye..."
+      DRb.stop_service
     end
   end
 end
