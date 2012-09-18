@@ -63,6 +63,7 @@ module DIY
     
     def send_pkt(pkt)
       sleep 1
+      pkt = fill60(pkt)
       logger.info("send pkt: [ #{Time.now} ]#{pkt[0..10].dump}...")
       @driver.inject(pkt)
     end
