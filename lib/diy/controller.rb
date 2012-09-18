@@ -1,46 +1,53 @@
 # encoding : utf-8
+
+require 'timeout'
 module DIY
   class Controller
-    def initialize(live, strategy)
-      @live = live
-      @recver = Recver.new(@live)
-      @recver.add_watcher(strategy)
-      @recver_t = nil
-      @sender = Sender.new(@live)
-      @queue = strategy.queue
-      @logger = DIY::Logger
-    end
-    attr_accessor :logger
-    
-    def before_send(&block)
-      @sender.before_send(&block)
+    def initialize( client, server, offline, strategy)
+      @client = client
+      @server = server
+      @offline = offline
+      @strategy = strategy
     end
     
     def run
-      # 接收线程
-      @recver_t = Thread.new do
-        @recver.run
-      end
+      client = @client
+      server = @server
       
-      begin
-        @queue.do_loop do |pkt|
-          logger.info "send pkt: #{Utils.pp(pkt)}"
-          @sender.inject(pkt)
-        end
-        @recver_t.join
-      rescue HopePacketTimeoutError =>e
-        # next offline
-        DIY::Logger.warn("Timeout: #{e}")
-        old = e
+      loop do
         begin
-          @queue.clear_and_next_pcap
-          retry
+        pkts = @offline.nexts
+        one_round( client, server, pkts )
+        client, server = server, client
+        rescue HopePacketTimeoutError
+          @offline.next_pcap
+          client,server = @client, @server
         rescue EOFError
-          @recver.stop
-          raise old
+          break
         end
-      rescue EOFError
-        @recver.stop
+      end
+    end
+    
+    def one_round( client, server, pkts )
+      server.ready do |recv_pkt|
+        recv_pkt = Packet.new(recv_pkt)
+        @strategy.call(pkts.first, recv_pkt, pkts)
+      end
+      client.inject(pkts)
+      wait_recv_ok(pkts)
+      server.terminal
+    end
+    
+    def wait_recv_ok(pkts)
+      wait_until { pkts.empty? }
+    end
+    
+    def wait_until( timeout = 20, &block )
+      timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} senconds") ) do
+        loop do
+          break if block.call
+          sleep 0.01
+        end
       end
     end
     

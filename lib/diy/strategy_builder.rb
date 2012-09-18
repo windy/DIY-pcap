@@ -2,10 +2,9 @@
 require 'logger'
 module DIY
   class StrategyBuilder
-    def initialize(queue)
+    def initialize
       @ins = []
       @logger = DIY::Logger
-      @queue = queue
     end
     attr_reader :queue
     
@@ -22,27 +21,21 @@ module DIY
       @logger
     end
     
-    def recv_pkt(pkt)
-      recv_pkt_queue(queue,pkt)
-    end
-    
-    def recv_pkt_queue(queue, recv_pkt)
-      hope_pkt = queue.peek
-      logger.debug("recv_pkt, I hope: #{ hope_pkt[0..10].dump rescue nil }...")
+    def call(hope_pkt, recv_pkt, queue)
+      logger.debug("recv_pkt, I hope: #{ Utils.pp(hope_pkt) rescue nil }...")
       
       return if hope_pkt.nil?
       
       @ins.each do |strategy|
         begin
-        ret = strategy.call(hope_pkt, recv_pkt, queue)
+          ret = strategy.call(hope_pkt.content, recv_pkt.content, queue)
         rescue Exception => e
           logger.error("user strategy exception: #{e.class} -> #{e.message}")
           raise
-          #TODO 也许仅仅忽略?
         else
           if ret == Strategy::OK
             logger.info("pkt same:")
-            queue.pop
+            queue.shift
             return
           elsif ret == Strategy::OK_NO_POP
             logger.info("pkt skip:")

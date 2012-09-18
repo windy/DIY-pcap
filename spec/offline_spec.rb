@@ -44,4 +44,16 @@ describe DIY::Offline do
     offline.fullname.should == "pkt: `helper/app.pcap: 2th' "
   end
   
+  it "should get nexts two" do
+    files = [ "helper/gre.pcap", "helper/app.pcap" ]
+    offline = DIY::Offline.new(files)
+    offline.nexts.size.should == 1
+    offline.nexts.size.should == 2
+    offline.nexts.size.should == 2
+    offline.next_pcap
+    offline.nexts.size.should == 1
+    offline.nexts.size.should == 7
+    lambda { loop do offline.nexts end }.should raise_error(DIY::EOFError)
+  end
+  
 end

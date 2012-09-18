@@ -1,19 +1,10 @@
+require 'drb'
 module DIY
   class Builder
     def initialize(server = false, &block)
       @strategies = []
       instance_eval(&block)
       @server = server
-    end
-    
-    def find_device
-      @device_name ||= FFI::PCap.dump_devices[0][0]
-      DIY::Logger.info( "Initialize Live: #{@device_name}" )
-      @live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-    end
-    
-    def device(name)
-      @device_name = name
     end
     
     def use(what)
@@ -24,6 +15,13 @@ module DIY
       @before_send_hook = block
     end
     
+    def find_worker_keepers
+      @curi ||= "druby://localhost:7878"
+      @suri ||= "druby://localhost:7879"
+      @client = DRbObject.new_with_uri(@curi)
+      @server = DRbObject.new_with_uri(@suri)
+    end
+    
     def pcapfile(pcaps)
       DIY::Logger.info( "Initialize Offline: #{pcaps.to_a.join(', ')}" )
       @offline = DIY::Offline.new(pcaps)
@@ -31,13 +29,12 @@ module DIY
     alias pcapfiles pcapfile
     
     def run
-      @offline ||= FFI::PCap::Offline.new('pcaps/example.pcap')
-      @queue = Queue.new(@offline, @server)
-      @strategy_builder = DIY::StrategyBuilder.new(@queue)
+      @offline ||= DIY::Offline.new('pcaps/example.pcap')
+      @strategy_builder = DIY::StrategyBuilder.new
       @strategies.each { |builder| @strategy_builder.add(builder) }
-      find_device
-      controller = Controller.new( @live, @strategy_builder )
-      controller.before_send(&@before_send_hook)
+      find_worker_keepers
+      controller = Controller.new( @client, @server, @offline, @strategy_builder )
+      #~ controller.before_send(&@before_send_hook)
       controller.run
     end
     
