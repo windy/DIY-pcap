@@ -68,19 +68,25 @@ module DIY
     end
     
     def recv_pkt(pkt)
-      if pkt.size < 60
-        logger.info "pkt size #{pkt.size} less than 60, fill with zero"
-        pkt += "0" * (60 - pkt.size)
-      end
+      pkt = fill60(pkt)
       logger.info("I hope pkt: #{pkt[0..10].dump}")
       @driver.loop do |this, new_pkt|
         #~ logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
+        new_pkt = fill60(new_pkt)
         if new_pkt.body == pkt
           logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
           logger.info "got the same pkt,stop"
           return true
         end
       end
+    end
+    
+    def fill60(pkt)
+      if pkt.size < 60
+        logger.info "pkt size #{pkt.size} less than 60, fill with zero"
+        pkt += "0" * (60 - pkt.size)
+      end
+      pkt
     end
     
     def logger
