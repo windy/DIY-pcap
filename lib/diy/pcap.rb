@@ -63,20 +63,31 @@ module DIY
     
     def send_pkt(pkt)
       sleep 1
+      pkt = fill60(pkt)
       logger.info("send pkt: [ #{Time.now} ]#{pkt[0..10].dump}...")
       @driver.inject(pkt)
     end
     
     def recv_pkt(pkt)
+      pkt = fill60(pkt)
       logger.info("I hope pkt: #{pkt[0..10].dump}")
       @driver.loop do |this, new_pkt|
         #~ logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
-        if new_pkt.body == pkt
-          logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
-          logger.info "got the same pkt,stop"
+        new_pkt_body = fill60(new_pkt.body)
+        if new_pkt_body == pkt
+          logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt_body[0..10].dump}..." )
+          logger.info "got the same pkt,next"
           return true
         end
       end
+    end
+    
+    def fill60(pkt)
+      if pkt.size < 60
+        logger.info "pkt size #{pkt.size} less than 60, fill with zero"
+        pkt += "0" * (60 - pkt.size)
+      end
+      pkt
     end
     
     def logger
