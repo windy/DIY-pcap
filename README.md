@@ -43,6 +43,8 @@ end
 2. 准备好 pcap 文件放在 `pcaps/simple.pcap` 目录下, 创建文件 spec.rb:
 
     ```ruby
+require 'rubygems'
+require 'diy-pcap'
 DIY::Builder.new do
       pcapfile "pcaps/simple.pcap"
       use DIY::SimpleStrategy.new
