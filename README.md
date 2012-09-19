@@ -10,22 +10,22 @@ DIY-pcap
 1. 安装很简单
 
     ```bash
-        gem install DIY-pcap
-    ```
+  gem install DIY-pcap
+```
         
     服务端与本机需要同时安装.
         
 2. 准备好要发送和接收的数据放在 `pcaps` 目录下, 创建文件 spec.rb:
 
     ```ruby
-          pcap do |s|
-            s.dir = "pcaps"
-            s.send "r1.dat"
-            s.recv "s1.dat"
-            s.recv "s2.dat"
-            s.send "r2.dat"
-          end
-    ```
+pcap do |s|
+      s.dir = "pcaps"
+      s.send "r1.dat"
+      s.recv "s1.dat"
+      s.recv "s2.dat"
+      s.send "r2.dat"
+end
+```
         
     上面的意思是, 从本机发送 `r1.dat` 到 服务端, 并等待接收 `s1.dat`, `s2.dat` 数据包, 之后再发送 `r2.dat`, 最后结束.
     更多内容请参考: simple/ 里面的内容.
@@ -43,12 +43,12 @@ DIY-pcap
 2. 准备好 pcap 文件放在 `pcaps/simple.pcap` 目录下, 创建文件 spec.rb:
 
     ```ruby
-          DIY::Builder.new do
-            pcapfile "pcaps/simple.pcap"
-            use DIY::SimpleStrategy.new
-            client "x.x.x.x" # 配置客户端ip, 缺省端口为7878
-            server "x.x.x.x" # 配置服务端ip, 缺省端口为7879, 以上都可以写为 x.x.x.x:x 的形式, 与 rpcap或pcap的 -i 参数对应
-          end
+DIY::Builder.new do
+      pcapfile "pcaps/simple.pcap"
+      use DIY::SimpleStrategy.new
+      client "x.x.x.x" # 配置客户端ip, 缺省端口为7878
+      server "x.x.x.x" # 配置服务端ip, 缺省端口为7879, 以上都可以写为 x.x.x.x:x 的形式, 与 rpcap或pcap的 -i 参数对应
+end
     ```
 3. 使用方法( 准备三台主机或逻辑主机, 只是试验的话可以使用 `127.0.0.1` )
 
