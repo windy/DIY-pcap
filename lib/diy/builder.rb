@@ -23,6 +23,33 @@ module DIY
       @server = DRbObject.new_with_uri(@suri)
     end
     
+    def client(ip_or_iport)
+      default_port = "7878"
+      if ! ip_or_iport.include?(':')
+        iport = ip_or_iport + ':' + default_port
+      else
+        iport = ip_or_iport
+      end
+      @curi = ip2druby(iport)
+    end
+    
+    def server(ip_or_iport)
+      default_port = "7879"
+      if ! ip_or_iport.include?(':')
+        iport = ip_or_iport + ':' + default_port
+      else
+        iport = ip_or_iport
+      end
+      @suri = ip2druby(iport)
+    end
+    
+    def ip2druby(ip)
+      if ! ip.include?('://')
+        return "druby://" + ip
+      end
+      return ip
+    end
+    
     def pcapfile(pcaps)
       DIY::Logger.info( "Initialize Offline: #{pcaps.to_a.join(', ')}" )
       @offline = DIY::Offline.new(pcaps)

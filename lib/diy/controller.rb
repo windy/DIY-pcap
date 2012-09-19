@@ -14,6 +14,8 @@ module DIY
       client = @client
       server = @server
       
+      @fail_count = 0
+      start_time = Time.now
       #clear
       client.terminal
       server.terminal
@@ -25,6 +27,7 @@ module DIY
         client, server = server, client
         rescue HopePacketTimeoutError
           DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].inspect} ")
+          @fail_count += 1
           @offline.next_pcap
           client,server = @client, @server
         rescue EOFError
@@ -33,12 +36,14 @@ module DIY
           break
         end
       end
+      end_time = Time.now
+      stats_result( end_time - start_time, @fail_count )
     end
     
     def one_round( client, server, pkts )
       @round_count = 0 unless @round_count
       @round_count += 1
-      DIY::Logger.info "round #{@round_count}: #{client} #{server} #{pkts[0].inspect}:(size= #{pkts.size})"
+      DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].inspect}:(size= #{pkts.size})"
       server.ready do |recv_pkt|
         recv_pkt = Packet.new(recv_pkt)
         @strategy.call(pkts.first, recv_pkt, pkts)
@@ -48,12 +53,17 @@ module DIY
       server.terminal
     end
     
+    def stats_result( cost_time, fail_count )
+      DIY::Logger.info " ====== Finished in #{cost_time} seconds"
+      DIY::Logger.info " ====== Total fail_count: #{fail_count} failures"
+    end
+    
     def wait_recv_ok(pkts)
       wait_until { pkts.empty? }
     end
     
     def wait_until( timeout = 20, &block )
-      timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} senconds") ) do
+      timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
         loop do
           break if block.call
           sleep 0.01

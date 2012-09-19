@@ -5,7 +5,7 @@ module DIY
       def pp(pkt)
         pkt = pkt.content if pkt.kind_of?(DIY::Packet)
         return nil if pkt.nil?
-        ( pkt[0..10] + "..." ).dump
+        ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
       end
       
       def src_mac(pkt)

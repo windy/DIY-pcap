@@ -9,7 +9,7 @@ DIY-pcap
 
 1. 安装很简单
 
-    ```
+    ```bash
         gem install DIY-pcap
     ```
         
@@ -32,9 +32,9 @@ DIY-pcap
 
 3. 开始发送与接收数据
 
-  * 服务端,执行 `rpcap spec.rb`
+  * 服务端,执行 `rpcap -f spec.rb`
   
-  * 本机, 执行 `pcap spec.rb`
+  * 本机, 执行 `pcap -f spec.rb`
   
 ## 使用方法, 回放pcap报文 ( 二 )
 
@@ -46,10 +46,18 @@ DIY-pcap
           DIY::Builder.new do
             pcapfile "pcaps/simple.pcap"
             use DIY::SimpleStrategy.new
+            client "x.x.x.x" # 配置客户端ip, 缺省端口为7878
+            server "x.x.x.x" # 配置服务端ip, 缺省端口为7879, 以上都可以写为 x.x.x.x:x 的形式, 与 rpcap或pcap的 -i 参数对应
           end
     ```
-3. 同上
+3. 使用方法( 准备三台主机或逻辑主机 )
 
-4. (其他说明) 扩展策略, 自定义日志, 修改报文内容.
+  * 服务端, 执行 `rpcap` ( 如果启动出错, 请参考 rpcap -h 中参数 -i 与 -n )
   
-OK, 祝你好运.
+  * 客户端, 执行 `pcap` ( 如果启动出错, 请参考 pcap -h 中参数 -i 与 -n )
+  
+  * 控制端, 执行 `ruby spec.rb`, OK, 开始交互, 结束后, 会有 cost time 与 fail count 输出.
+
+4. (其他说明) 扩展策略, 自定义日志, 修改报文内容参见 [Wiki Home](/windy/DIY-pcap/wiki).
+  
+OK, 一切如故.

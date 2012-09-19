@@ -8,6 +8,8 @@ ss = DIY::SimpleStrategy.new
 a = DIY::Builder.new do 
   use ss
   pcapfile Dir["pcaps/*.pcap"]
+  client "127.0.0.1"
+  server "127.0.0.1"
 end
 
 a.run
