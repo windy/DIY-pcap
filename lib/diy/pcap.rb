@@ -17,15 +17,20 @@ module DIY
     attr_accessor :timeout, :dir, :device_name
     
     def send(pkt_dir)
-      @pkt_stack << PacketEx.new( pkt_dir2pkt(pkt_dir), PacketEx::SEND)
+      @pkt_stack << PacketEx.new( pkt_dir2pkt(pkt_dir), PacketEx::SEND, pkt_dir)
     end
     
     def recv(pkt_dir)
-      @pkt_stack << PacketEx.new( pkt_dir2pkt(pkt_dir), PacketEx::RECV)
+      @pkt_stack << PacketEx.new( pkt_dir2pkt(pkt_dir), PacketEx::RECV, pkt_dir)
     end
     
     def pkt_dir2pkt(dir)
-      File.read( File.join( @dir, dir ) )
+      #~ File.read( File.join( @dir, dir ) )
+      ret = ""
+      File.open( File.join( @dir, dir), "rb") do |f|
+        ret += f.read(65535) until f.eof?
+      end
+      ret
     end
     
     def run
@@ -44,9 +49,9 @@ module DIY
     def run_client
       @pkt_stack.each do |pkt|
         if pkt.to_outer?
-          send_pkt(pkt.pkt)
+          send_pkt(pkt)
         else
-          recv_pkt(pkt.pkt)
+          recv_pkt(pkt)
         end
       end
     end
@@ -54,23 +59,25 @@ module DIY
     def run_server
       @pkt_stack.each do |pkt|
         if pkt.to_inner?
-          send_pkt(pkt.pkt)
+          send_pkt(pkt)
         else
-          recv_pkt(pkt.pkt)
+          recv_pkt(pkt)
         end
       end
     end
     
     def send_pkt(pkt)
       sleep 1
+      logger.info("send pkt: [ #{Time.now} ]#{pkt.pkt[0..10].dump}(file: #{pkt.filename}, size: #{pkt.size})...")
+      pkt = pkt.pkt
       pkt = fill60(pkt)
-      logger.info("send pkt: [ #{Time.now} ]#{pkt[0..10].dump}...")
       @driver.send_packet(pkt)
     end
     
     def recv_pkt(pkt)
+      logger.info("I hope pkt: #{pkt.pkt[0..10].dump}(file: #{pkt.filename}, size: #{pkt.size})...")
+      pkt = pkt.pkt
       pkt = fill60(pkt)
-      logger.info("I hope pkt: #{pkt[0..10].dump}")
       @driver.loop do |this, new_pkt|
         #~ logger.info("recv pkt: [ #{new_pkt.time} ]: #{new_pkt.body[0..10].dump}..." )
         new_pkt_body = fill60(new_pkt.body)
@@ -84,7 +91,7 @@ module DIY
     
     def fill60(pkt)
       if pkt.size < 60
-        logger.info "pkt size #{pkt.size} less than 60, fill with zero"
+        logger.debug "pkt size #{pkt.size} less than 60, fill with zero"
         pkt += "0" * (60 - pkt.size)
       end
       pkt
@@ -103,9 +110,10 @@ module DIY
   class PacketEx
     SEND = 1
     RECV = 0
-    def initialize( pkt, pos )
+    def initialize( pkt, pos, filename = nil )
       @pkt = pkt
       @pos = pos
+      @filename = filename
     end
     
     def to_outer?
@@ -116,6 +124,10 @@ module DIY
       @pos == RECV
     end
     
-    attr_reader :pkt, :pos
+    def size
+      @pkt.size
+    end
+    
+    attr_reader :pkt, :pos, :filename
   end
 end

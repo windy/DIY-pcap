@@ -45,7 +45,8 @@ OptionParser.new do |opts|
 end.parse!
 
 if options[:file]
-  require File.join( Dir.pwd, ARGV[0] )
+  $SERVER = true
+  require File.join( Dir.pwd, options[:file])
 else
   ip = options[:ip]
   if ip.include?(':')
