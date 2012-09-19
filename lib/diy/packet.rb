@@ -5,6 +5,7 @@ module DIY
       @detail_msg = detail_msg
     end
     attr_reader :content, :detail_msg
+    attr_writer :content
     
     def to_s
       @content

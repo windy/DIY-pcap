@@ -11,8 +11,12 @@ module DIY
       @strategies.unshift(what)
     end
     
-    def before_send(&block)
-      @before_send_hook = block
+    def before_send(arg= nil, &block)
+      if arg
+        @before_send_hook = arg
+      else
+        @before_send_hook = block
+      end
     end
     
     def find_worker_keepers
@@ -62,7 +66,7 @@ module DIY
       @strategies.each { |builder| @strategy_builder.add(builder) }
       find_worker_keepers
       controller = Controller.new( @client, @server, @offline, @strategy_builder )
-      #~ controller.before_send(&@before_send_hook)
+      controller.before_send(&@before_send_hook)
       controller.run
     end
     

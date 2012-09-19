@@ -8,6 +8,7 @@ module DIY
       @server = server
       @offline = offline
       @strategy = strategy
+      @before_send = nil
     end
     
     def run
@@ -28,7 +29,13 @@ module DIY
         rescue HopePacketTimeoutError
           DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].inspect} ")
           @fail_count += 1
+          begin
           @offline.next_pcap
+          rescue EOFError
+            client.terminal
+            server.terminal
+            break
+          end
           client,server = @client, @server
         rescue EOFError
           client.terminal
@@ -48,9 +55,27 @@ module DIY
         recv_pkt = Packet.new(recv_pkt)
         @strategy.call(pkts.first, recv_pkt, pkts)
       end
-      client.inject(pkts)
+      client_send(client, pkts)
       wait_recv_ok(pkts)
       server.terminal
+    end
+    
+    def client_send(client, pkts)
+      if ! @before_send
+        client.inject(pkts)
+      else
+        pkts = pkts.collect do |pkt| 
+          content = pkt.content
+          pkt.content = @before_send.call(content)
+          pkt
+        end
+        
+        client.inject(pkts)
+      end
+    end
+    
+    def before_send(&block)
+      @before_send = block
     end
     
     def stats_result( cost_time, fail_count )
@@ -62,7 +87,7 @@ module DIY
       wait_until { pkts.empty? }
     end
     
-    def wait_until( timeout = 20, &block )
+    def wait_until( timeout = 10, &block )
       timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
         loop do
           break if block.call

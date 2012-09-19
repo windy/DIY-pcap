@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'diy-pcap'
 class NoMacEqualStrategy < DIY::BasicStrategy
   def call(hope_pkt, recv_pkt, queue)
     return OK if hope_pkt[12..-1] == recv_pkt[12..-1]
