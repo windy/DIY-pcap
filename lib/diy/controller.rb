@@ -36,7 +36,9 @@ module DIY
     end
     
     def one_round( client, server, pkts )
-      DIY::Logger.info "round: #{client} #{server} #{pkts[0].inspect}:(size= #{pkts.size})"
+      @round_count = 0 unless @round_count
+      @round_count += 1
+      DIY::Logger.info "round #{@round_count}: #{client} #{server} #{pkts[0].inspect}:(size= #{pkts.size})"
       server.ready do |recv_pkt|
         recv_pkt = Packet.new(recv_pkt)
         @strategy.call(pkts.first, recv_pkt, pkts)

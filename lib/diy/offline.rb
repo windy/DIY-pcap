@@ -6,65 +6,108 @@ module DIY
       @pcap_files = [ pcap_files ] if pcap_files.kind_of?(String)
       @pcap_files ||= pcap_files
       @off = FFI::PCap::Offline.new(@pcap_files[0])
+      # 记录文件在目录中的位置
       @position = 0
+      # 记录包在当前文件的位置
       @num = 0
       
       @tmp_pcap = nil
     end
     
-    def next
-      if @tmp_pcap
-        ret = @tmp_pcap
-        @tmp_pcap = nil
-        return ret
+    def nexts
+      ret = []
+      # 取一个
+      pkt = fetch_one
+      if pkt.nil?
+        next_pcap
+        pkt = fetch_one
       end
       
-      pkt = @off.next
-      if pkt.nil?
-        begin
-          next_pcap
-          pkt = @off.next
-        rescue EOFError
-          pkt = nil
+      ret << pkt
+      op = "=="
+      if ! fetch_cached_mac
+        cached_mac(pkt)
+      else
+        if Utils.src_mac(pkt) != fetch_cached_mac
+          op = "!="
         end
       end
       
-      #record num of pkt
-      @num += 1 if pkt
+      loop do
+        pkt = self.next
+        if pkt.nil?
+          return ret
+        end
+        
+        if compare_mac( op, Utils.src_mac(pkt), fetch_cached_mac)
+          ret << pkt
+        else
+          cached(pkt)
+          return ret
+        end
+        
+      end
       
-      pkt
     end
     
-    def nexts
-      ret = []
-      pkt = self.next
-      
-      raise EOFError, "end of pcaps" if pkt.nil?
-      
-      if first_pkt?
-        @src = Utils.src_mac(pkt.body)
-      end
-      
-      if Utils.src_mac( pkt.body ) == @src
-        while( pkt and (Utils.src_mac( pkt.body ) == @src) ) do
-          ret << Packet.new(pkt.copy.body, fullname)
-          pkt = self.next
-        end     
+    def compare_mac( op, mac1, mac2)
+      if op == "=="
+        mac1 == mac2
+      elsif op == "!="
+        mac1 != mac2
       else
-        while( pkt and (Utils.src_mac( pkt.body ) != @src) ) do
-          ret << Packet.new(pkt.copy.body, fullname)
-          pkt = self.next
-        end            
+        raise "error op"
       end
-      
-      @tmp_pcap = pkt.copy if pkt
-      ret
+    end
+    
+    def fetch_one
+      pkt = fetch_cache
+      if pkt.nil?
+        pkt = self.next
+      end
+      pkt
+    end
+    protected
+    # 只处理当前文件
+    def next
+      pkt = @off.next
+      @num += 1
+      return nil if pkt.nil?
+
+      return Packet.new(pkt.copy.body, fullname)
+    end
+    
+    def cached(pkt)
+      raise "Can't cached one pkt twice" if @tmp_pcap
+      @tmp_pcap = pkt
+    end
+    
+    def cached_mac(pkt)
+      @src = Utils.src_mac(pkt)
+    end
+    
+    def fetch_cached_mac
+      @src
+    end
+    
+    def clear_cached_mac
+      @src = nil
+    end
+    
+    def fetch_cache
+      if @tmp_pcap
+        tmp = @tmp_pcap
+        @tmp_pcap = nil
+        return tmp
+      end
+      return nil
     end
     
     def first_pkt?
+      puts @num
       @num == 1
     end
-    
+    public
     def next_pcap
       if @position >= @pcap_files.size - 1
         raise EOFError, " end of pcaps "
@@ -73,7 +116,8 @@ module DIY
       DIY::Logger.info("pcap file changed: #{@pcap_files[@position]}")
       @off = FFI::PCap::Offline.new(@pcap_files[@position])
       @num = 0
-      @tmp_pcap = nil
+      clear_cached_mac
+      fetch_cache
     end
     
     def filename

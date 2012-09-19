@@ -14,14 +14,14 @@ module DIY
     # 发包
     def inject(pkts)
       pkts.each do |pkt|
-        DIY::Logger.info "send pkt"
+        DIY::Logger.info "send pkt: #{pkt.inspect}"
         @live.send_packet(pkt.content)
       end
     end
     
     def loop_recv
       @recv_t = Thread.new do
-        DIY::Logger.info "ready to recv"
+        DIY::Logger.info "start thread recving pkt..."
         @live.loop do |this, pkt|
           next unless @start
           @block.call(pkt.body) if @block
@@ -31,11 +31,13 @@ module DIY
     
     #收包
     def ready(&block)
+      DIY::Logger.info("start recv pkt")
       @block = block
       @start = true
     end
     
     def terminal
+      DIY::Logger.info("stop recv pkt")
       @start = false
     end
     
