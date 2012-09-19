@@ -14,21 +14,29 @@ module DIY
       client = @client
       server = @server
       
+      #clear
+      client.terminal
+      server.terminal
+      
       loop do
         begin
         pkts = @offline.nexts
         one_round( client, server, pkts )
         client, server = server, client
         rescue HopePacketTimeoutError
+          DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].inspect} ")
           @offline.next_pcap
           client,server = @client, @server
         rescue EOFError
+          client.terminal
+          server.terminal
           break
         end
       end
     end
     
     def one_round( client, server, pkts )
+      DIY::Logger.info "round: #{client} #{server} #{pkts[0].inspect}:(size= #{pkts.size})"
       server.ready do |recv_pkt|
         recv_pkt = Packet.new(recv_pkt)
         @strategy.call(pkts.first, recv_pkt, pkts)

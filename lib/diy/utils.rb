@@ -17,6 +17,15 @@ module DIY
         pkt = pkt.content if pkt.kind_of?(DIY::Packet)
         pkt[0..5]
       end
+      
+      def wait_until( timeout = 20, &block )
+        timeout(timeout) do
+          loop do
+            break if block.call
+            sleep 0.01
+          end
+        end
+      end
     end
   end
 end
