@@ -11,6 +11,7 @@ module DIY
     end
     
     def run
+      Thread.abort_on_exception = true
       DIY::Logger.info "serving at #{@uri}"
       DRb.start_service(@uri, @worker)
       running = true

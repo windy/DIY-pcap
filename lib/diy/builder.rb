@@ -22,7 +22,10 @@ module DIY
     def find_worker_keepers
       @curi ||= "druby://localhost:7878"
       @suri ||= "druby://localhost:7879"
-      DRb.start_service
+      @me  ||= "druby://localhost:7880"
+      # controller drb server
+      DRb.start_service(@me)
+      # client and server drb server
       @client = DRbObject.new_with_uri(@curi)
       @server = DRbObject.new_with_uri(@suri)
     end
@@ -45,6 +48,16 @@ module DIY
         iport = ip_or_iport
       end
       @suri = ip2druby(iport)
+    end
+    
+    def me(ip_or_iport)
+      default_port = "7880"
+      if ! ip_or_iport.include?(':')
+        iport = ip_or_iport + ':' + default_port
+      else
+        iport = ip_or_iport
+      end
+      @me = ip2druby(iport)      
     end
     
     def ip2druby(ip)
