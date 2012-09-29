@@ -49,7 +49,8 @@ DIY::Builder.new do
       pcapfile "pcaps/simple.pcap"
       use DIY::SimpleStrategy.new
       client "x.x.x.x" # 配置客户端ip, 缺省端口为7878
-      server "x.x.x.x" # 配置服务端ip, 缺省端口为7879, 以上都可以写为 x.x.x.x:x 的形式, 与 rpcap或pcap的 -i 参数对应
+      server "x.x.x.x" # 配置服务端ip, 缺省端口为7879
+      me "x.x.x.x" # 配置控制端ip, 缺省端口为7880, 以上都可以写为 x.x.x.x:x 的形式, 与 rpcap或pcap的 -i 参数对应
 end
     ```
 3. 使用方法( 准备三台主机或逻辑主机, 只是试验的话可以使用 `127.0.0.1` )
