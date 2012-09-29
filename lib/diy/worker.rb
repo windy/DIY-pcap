@@ -26,7 +26,7 @@ module DIY
           next unless @start
           begin
             @block.call(pkt.body) if @block
-          rescue DRb::DRbconnError
+          rescue DRb::DRbConnError
             DIY::Logger.info "closed connection by controller"
           end
         end
