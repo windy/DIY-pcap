@@ -24,7 +24,11 @@ module DIY
         DIY::Logger.info "start thread recving pkt..."
         @live.loop do |this, pkt|
           next unless @start
-          @block.call(pkt.body) if @block
+          begin
+            @block.call(pkt.body) if @block
+          rescue DRb::DRbconnError
+            DIY::Logger.info "closed connection by controller"
+          end
         end
       end
     end

@@ -43,6 +43,7 @@ module DIY
           break
         end
       end
+      DRb.stop_service
       end_time = Time.now
       stats_result( end_time - start_time, @fail_count )
     end
