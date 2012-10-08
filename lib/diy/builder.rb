@@ -31,33 +31,26 @@ module DIY
     end
     
     def client(ip_or_iport)
-      default_port = "7878"
-      if ! ip_or_iport.include?(':')
-        iport = ip_or_iport + ':' + default_port
-      else
-        iport = ip_or_iport
-      end
-      @curi = ip2druby(iport)
+      @curi = ip_or_iport_with_default(ip_or_iport, 7878)
     end
     
     def server(ip_or_iport)
-      default_port = "7879"
-      if ! ip_or_iport.include?(':')
-        iport = ip_or_iport + ':' + default_port
-      else
-        iport = ip_or_iport
-      end
-      @suri = ip2druby(iport)
+      @suri = ip_or_iport_with_default(ip_or_iport, 7879)
     end
     
     def me(ip_or_iport)
-      default_port = "7880"
+      @me = ip_or_iport_with_default(ip_or_iport, 7880)
+    end
+    alias controller me
+    
+    def ip_or_iport_with_default(ip_or_iport, default_port)
+      default_port = default_port.to_s
       if ! ip_or_iport.include?(':')
         iport = ip_or_iport + ':' + default_port
       else
         iport = ip_or_iport
       end
-      @me = ip2druby(iport)      
+      ip2druby(iport)      
     end
     
     def ip2druby(ip)

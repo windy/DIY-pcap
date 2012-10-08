@@ -10,7 +10,7 @@ a = DIY::Builder.new do
   pcapfile Dir["pcaps/*.pcap"]
   client "127.0.0.1"
   server "127.0.0.1"
-  me "127.0.0.1"
+  controller "127.0.0.1"
 end
 
 a.run
