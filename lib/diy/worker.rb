@@ -11,7 +11,9 @@ module DIY
       @recv_t = nil
       @start = false
       @m = Mutex.new
+      @queue = Queue.new
       loop_recv
+      loop_callback
     end
   
     # 发包
@@ -27,10 +29,19 @@ module DIY
         DIY::Logger.info "start thread recving pkt..."
         @live.loop do |this, pkt|
           next unless @start
+          @queue.push(pkt.body)
+        end
+      end
+    end
+    
+    def loop_callback
+      @callback_t = Thread.new do 
+        #~ DIY::Logger.info "start thread callbacking pkt..."
+        loop do
           begin
-            @m.synchronize do
-              @block.call(pkt.body) if @block
-            end
+            pkt = @queue.pop
+            #~ DIY::Logger.info "callback: #{pkt}"
+            @block.call(pkt) if @block
           rescue DRb::DRbConnError
             DIY::Logger.info "closed connection by controller"
           end
@@ -42,12 +53,14 @@ module DIY
     def ready(&block)
       DIY::Logger.info("start recv pkt")
       @block = block
+      @queue.clear
       @start = true
     end
     
     def terminal
       DIY::Logger.info("stop recv pkt")
       @start = false
+      @queue.clear
     end
     
     def inspect

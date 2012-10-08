@@ -5,8 +5,8 @@ describe DIY::Builder do
   before(:each) do
     @device_name = FFI::PCap.dump_devices[0][0]
     DIY::Logger.info( "Initialize Live: #{@device_name}" )
-    @live = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
-    @live2 = FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
+    @live = DIY::Live.new(@device_name)#FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
+    @live2 = DIY::Live.new(@device_name)#FFI::PCap::Live.new(:dev=>@device_name, :handler => FFI::PCap::Handler, :promisc => true)
     
     @curi = "druby://localhost:7878"
     @suri = "druby://localhost:7879"
@@ -30,6 +30,7 @@ describe DIY::Builder do
     builder = DIY::Builder.new do
       pcapfiles "helper/http.pcap"
       use DIY::SimpleStrategy.new
+      timeout 10
     end
     builder.run
   end

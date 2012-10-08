@@ -62,7 +62,7 @@ else
     device_name = DIY::DeviceFinder.smart_select
   end
   DIY::Logger.info( "Initialize Live: #{device_name}" )
-  device = FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::Handler, :promisc => true)
+  device = DIY::Live.new(device_name) #FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::Handler, :promisc => true)
   worker = DIY::Worker.new(device)
   DIY::WorkerKeeper.new(worker, uri).run
 end

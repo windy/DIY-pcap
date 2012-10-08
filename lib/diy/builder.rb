@@ -30,6 +30,10 @@ module DIY
       @server = DRbObject.new_with_uri(@suri)
     end
     
+    def timeout(timeout)
+      @timeout = timeout
+    end
+    
     def client(ip_or_iport)
       @curi = ip_or_iport_with_default(ip_or_iport, 7878)
     end
@@ -73,6 +77,7 @@ module DIY
       find_worker_keepers
       controller = Controller.new( @client, @server, @offline, @strategy_builder )
       controller.before_send(&@before_send_hook)
+      controller.timeout(@timeout) if @timeout
       controller.run
     end
     

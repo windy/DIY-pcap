@@ -9,6 +9,7 @@ module DIY
       @offline = offline
       @strategy = strategy
       @before_send = nil
+      @timeout = nil
     end
     
     def run
@@ -79,17 +80,21 @@ module DIY
       @before_send = block
     end
     
+    def timeout(timeout)
+      @timeout = timeout
+    end
+    
     def stats_result( cost_time, fail_count )
       DIY::Logger.info " ====== Finished in #{cost_time} seconds"
       DIY::Logger.info " ====== Total fail_count: #{fail_count} failures"
     end
     
     def wait_recv_ok(pkts)
-      wait_until { pkts.empty? }
+      wait_until(@timeout ||= 10) { pkts.empty? }
     end
     
     def wait_until( timeout = 10, &block )
-      timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
+      Timeout.timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
         loop do
           break if block.call
           sleep 0.01
