@@ -1,6 +1,8 @@
 # encoding : utf-8
 require 'diy/packet'
 require 'drb'
+require 'thread'
+
 module DIY
   include DRbUndumped
   class Worker
@@ -8,6 +10,7 @@ module DIY
       @live = live
       @recv_t = nil
       @start = false
+      @m = Mutex.new
       loop_recv
     end
   
@@ -25,7 +28,9 @@ module DIY
         @live.loop do |this, pkt|
           next unless @start
           begin
-            @block.call(pkt.body) if @block
+            @m.synchronize do
+              @block.call(pkt.body) if @block
+            end
           rescue DRb::DRbConnError
             DIY::Logger.info "closed connection by controller"
           end
