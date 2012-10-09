@@ -36,6 +36,7 @@ OptionParser.new do |opts|
   
   opts.on_tail('-V', 'detail mode') do
     DIY::Logger.level = ::Logger::DEBUG
+    DIY::Logger.debug "Enable debug mode"
   end
   
   opts.on_tail('-h','--help', 'Show this help') do
@@ -60,7 +61,6 @@ else
     require 'diy/device_finder'
     device_name = DIY::DeviceFinder.smart_select
   end
-  DIY::Logger.info( "Initialize Live: #{device_name}" )
   device = DIY::Live.new(device_name) #FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::Handler, :promisc => true)
   worker = DIY::Worker.new(device)
   DIY::WorkerKeeper.new(worker, uri).run
