@@ -5,7 +5,15 @@ module DIY
       def pp(pkt)
         pkt = pkt.content if pkt.kind_of?(DIY::Packet)
         return nil if pkt.nil?
-        ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
+        #~ ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
+        size = pkt.size
+        begin
+          new_pkt = pkt.dup
+          Mu::Pcap::Ethernet.from_bytes(new_pkt).to_s + "(#{size} sizes)"
+        rescue Mu::Pcap::ParseError =>e
+          DIY::Logger.warn "parse error from pkt: " + ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
+          return  ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
+        end
       end
       
       def src_mac(pkt)

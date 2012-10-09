@@ -11,3 +11,5 @@ require 'diy/strategy'
 
 require 'diy/worker'
 require 'diy/worker_keeper'
+
+autoload :Mu, "diy/parser/pcap"
