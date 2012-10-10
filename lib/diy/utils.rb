@@ -34,6 +34,28 @@ module DIY
           end
         end
       end
+      
+      def filter_backtrace(e) 
+        filter_ary = [ "/lib/diy/controller.rb", "/lib/diy/strategy_builder.rb" ]
+        new_bt = []
+        e.backtrace.each do |msg|
+          if ! Utils.ary_match(filter_ary, msg)
+           new_bt << msg
+          else
+            puts "break"
+            break
+          end
+        end
+        new_bt
+      end
+      
+      def ary_match(ary, msg)
+        ary.each do |e|
+          return true if /#{Regexp.escape(e)}/ === msg
+        end
+        nil
+      end
+      
     end
   end
 end

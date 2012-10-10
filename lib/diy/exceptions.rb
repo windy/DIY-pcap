@@ -12,4 +12,22 @@ module DIY
   # 不可能出现的报文出现
   class UnExpectPacketError < Error; end
   
+  class UserError < Error
+    def initialize(real_exception)
+      puts "new..."
+      @real_exception = real_exception
+      @name = real_exception.class
+      @message = real_exception.message
+      set_backtrace( Utils.filter_backtrace(real_exception) )
+    end
+    
+    def inspect
+      "#<#{self.class.name}: @real_exception=#{@name}, @real_msg=#{@message}>"
+    end
+  end
+  
+  # 策略执行异常
+  class StrategyCallError < UserError; end
+  # before_send 异常
+  class BeforeSendCallError < UserError; end
 end

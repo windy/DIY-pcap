@@ -30,8 +30,8 @@ module DIY
         begin
           ret = strategy.call(hope_pkt.content, recv_pkt.content, queue)
         rescue Exception => e
-          logger.error("user strategy exception: #{e.class} -> #{e.message}")
-          raise
+          #~ logger.error("user strategy exception: #{e.class} -> #{e.message}")
+          raise StrategyCallError.new(e)
         else
           if ret == Strategy::OK
             logger.info("pkt same:")

@@ -27,8 +27,8 @@ module DIY
         pkts = @offline.nexts
         one_round( client, server, pkts )
         client, server = server, client
-        rescue HopePacketTimeoutError
-          DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].inspect} ")
+        rescue HopePacketTimeoutError, UserError, FFI::PCap::LibError => e
+          DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].inspect} ") if e.kind_of?(HopePacketTimeoutError)
           @fail_count += 1
           begin
           @offline.next_pcap
@@ -50,12 +50,22 @@ module DIY
     end
     
     def one_round( client, server, pkts )
+      @error_flag = nil
       @round_count = 0 unless @round_count
       @round_count += 1
-      DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].inspect}:(size= #{pkts.size})"
+      DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].inspect}:(queue= #{pkts.size})"
       server.ready do |recv_pkt|
+        next if @error_flag # error accur waiting other thread do with it
         recv_pkt = Packet.new(recv_pkt)
-        @strategy.call(pkts.first, recv_pkt, pkts)
+        begin
+          @strategy.call(pkts.first, recv_pkt, pkts)
+        rescue DIY::StrategyCallError =>e
+          DIY::Logger.warn("UserError Catch: " + e.inspect)
+          e.backtrace.each do |msg|
+            DIY::Logger.info(msg)
+          end
+          @error_flag = e
+        end
       end
       client_send(client, pkts)
       wait_recv_ok(pkts)
@@ -63,16 +73,26 @@ module DIY
     end
     
     def client_send(client, pkts)
-      if ! @before_send
-        client.inject(pkts)
-      else
+      if @before_send
         pkts = pkts.collect do |pkt| 
           content = pkt.content
-          pkt.content = @before_send.call(content)
+          begin
+            pkt.content = @before_send.call(content)
+          rescue Exception => e
+            DIY::Logger.warn("UserError Catch: " + error = BeforeSendCallError.new(e) )
+            error.backtrace.each do |msg|
+              DIY::Logger.info(msg)
+            end
+            raise error
+          end
           pkt
         end
-        
+      end
+      begin
         client.inject(pkts)
+      rescue FFI::PCap::LibError =>e
+        DIY::Logger.warn("SendPacketError Catch: " + e )
+        raise e
       end
     end
     
@@ -90,14 +110,19 @@ module DIY
     end
     
     def wait_recv_ok(pkts)
-      wait_until(@timeout ||= 10) { pkts.empty? }
+      wait_until(@timeout ||= 10) do
+        if @error_flag
+          raise @error_flag
+        end
+        pkts.empty?
+      end
     end
     
     def wait_until( timeout = 10, &block )
       Timeout.timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
         loop do
           break if block.call
-          sleep 0.01
+          sleep 0.1
         end
       end
     end
