@@ -4,13 +4,14 @@ require 'drb'
 require 'thread'
 
 module DIY
-  include DRbUndumped
   class Worker
+    
+    include DRbUndumped
+    
     def initialize(live)
       @live = live
       @recv_t = nil
       @start = false
-      @m = Mutex.new
       @queue = Queue.new
       loop_recv
       loop_callback

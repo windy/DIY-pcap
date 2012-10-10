@@ -8,6 +8,12 @@ module DIY
     def initialize(worker, uri)
       @worker = worker
       @uri = uri
+      yield self if block_given?
+    end
+    
+    def use_timeridconv
+      require 'drb/timeridconv'
+      DRb.install_id_conv DRb::TimerIdConv.new    
     end
     
     def run
