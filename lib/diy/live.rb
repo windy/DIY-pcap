@@ -7,6 +7,7 @@ module DIY
     def initialize(device_name)
       DIY::Logger.info( "Initialize Live: #{device_name}" )
       @live = FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::CopyHandler, :promisc => true)
+      DIY::Logger.info( "Listen on:  #{net} " )
       #~ @live.non_blocking= true
     end
     attr_reader :live
@@ -25,6 +26,10 @@ module DIY
         end
         sleep 0.1
       end
+    end
+    
+    def net
+      @live.network + " / " + @live.netmask
     end
     
   end # end of class Live

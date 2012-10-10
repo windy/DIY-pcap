@@ -3,7 +3,7 @@ module DIY
     class <<self
       def smart_select
         ret = devices.find do |device, net|
-          !device.match(/dialup/) && net != nil
+          !device.match(/dialup/) && net != nil && net != "0.0.0.0/0.0.0.0"
         end
         if ret
           ret[0]
