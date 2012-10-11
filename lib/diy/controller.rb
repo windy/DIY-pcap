@@ -24,14 +24,15 @@ module DIY
       
       loop do
         begin
-        pkts = @offline.nexts
-        one_round( client, server, pkts )
-        client, server = server, client
+          pkts = @offline.nexts
+          one_round( client, server, pkts )
+          client, server = server, client
         rescue HopePacketTimeoutError, UserError, FFI::PCap::LibError => e
           DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].pretty_print} ") if e.kind_of?(HopePacketTimeoutError)
           @fail_count += 1
           begin
-          @offline.next_pcap
+            @offline.next_pcap
+            server.terminal
           rescue EOFError
             client.terminal
             server.terminal
@@ -62,7 +63,7 @@ module DIY
         recv_pkt = Packet.new(recv_pkt)
         begin
           @strategy.call(pkts.first, recv_pkt, pkts)
-        rescue DIY::StrategyCallError =>e
+        rescue DIY::UserError =>e
           DIY::Logger.warn("UserError Catch: " + e.inspect)
           e.backtrace.each do |msg|
             DIY::Logger.info(msg)
