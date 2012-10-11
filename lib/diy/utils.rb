@@ -2,17 +2,21 @@ module DIY
   module Utils
     class << self
       # 漂亮输出包的前十个内容
-      def pp(pkt)
+      def pp(pkt, size_print = true)
         pkt = pkt.content if pkt.kind_of?(DIY::Packet)
         return nil if pkt.nil?
         #~ ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
         size = pkt.size
+        size_print_str = ""
+        if size_print
+          size_print_str = "(#{size} sizes)"
+        end
         begin
           new_pkt = pkt.dup
-          Mu::Pcap::Ethernet.from_bytes(new_pkt).to_s + "(#{size} sizes)"
+          Mu::Pcap::Ethernet.from_bytes(new_pkt).to_s + size_print_str
         rescue Mu::Pcap::ParseError =>e
-          DIY::Logger.warn "parse error from pkt: " + ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
-          return  ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
+          DIY::Logger.warn "parse error from pkt: " + ( pkt[0..10] + "..." ).dump + size_print_str
+          return  ( pkt[0..10] + "..." ).dump + size_print_str
         end
       end
       

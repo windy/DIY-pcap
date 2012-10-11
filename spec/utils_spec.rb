@@ -5,6 +5,10 @@ describe DIY::Utils do
     DIY::Utils.pp('a' * 100).should match(/\(100 sizes\)/)
   end
   
+  it "#pp false" do
+    DIY::Utils.pp('a' * 100, false).should_not match(/\(100 sizes\)/)
+  end
+  
   it "#src_mac" do
     DIY::Utils.src_mac( 'a' * 100 ).should == "a" * 6
   end

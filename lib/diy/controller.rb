@@ -28,7 +28,7 @@ module DIY
         one_round( client, server, pkts )
         client, server = server, client
         rescue HopePacketTimeoutError, UserError, FFI::PCap::LibError => e
-          DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].inspect} ") if e.kind_of?(HopePacketTimeoutError)
+          DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].pretty_print} ") if e.kind_of?(HopePacketTimeoutError)
           @fail_count += 1
           begin
           @offline.next_pcap
@@ -53,7 +53,10 @@ module DIY
       @error_flag = nil
       @round_count = 0 unless @round_count
       @round_count += 1
-      DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].inspect}:(queue= #{pkts.size})"
+      DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].pretty_print}:(queue= #{pkts.size})"
+      if pkts.size >= 10
+        DIY::Logger.warn "queue size too big: #{pkts.size}, maybe something error"
+      end
       server.ready do |recv_pkt|
         next if @error_flag # error accur waiting other thread do with it
         recv_pkt = Packet.new(recv_pkt)
