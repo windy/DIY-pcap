@@ -37,5 +37,16 @@ module DIY
     end
   end
   
+  # 跳过相同源与目的MAC
+  class SkipSameMacStrategy < BasicStrategy
+    def call(hope_pkt, recv_pkt, queue)
+      if hope_pkt[0..5] == hope_pkt[6..11]
+        return OK
+      else
+        return NONE
+      end
+    end    
+  end
+  
 end
   
