@@ -9,12 +9,8 @@ module DIY
   # 没有报文被指定时
   class ZeroOfflineError < Error; end
   
-  # 不可能出现的报文出现
-  class UnExpectPacketError < Error; end
-  
   class UserError < Error
     def initialize(real_exception)
-      puts "new..."
       @real_exception = real_exception
       @name = real_exception.class
       @message = real_exception.message
@@ -25,6 +21,9 @@ module DIY
       "#<#{self.class.name}: @real_exception=#{@name}, @real_msg=#{@message}>"
     end
   end
+  
+    # 不可能出现的报文出现
+  class UnExpectPacketError < UserError; end
   
   # 策略执行异常
   class StrategyCallError < UserError; end

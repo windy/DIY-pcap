@@ -42,10 +42,11 @@ module DIY
             return
           elsif ret == Strategy::FAIL
             logger.warn("pkt fail:")
-            logger.warn("pkt fail: hope_pkt is #{Utils.pp(hope_pkt)}")
-            logger.warn("pkt fail: recv_pkt is #{Utils.pp(recv_pkt)}")
-            #TODO 也许需要将Queue输出?
-            raise UnExpectPacketError, "strategy FAIL"
+            logger.warn("pkt fail: hope_pkt is #{hope_pkt.pretty_print}")
+            logger.warn("pkt fail: recv_pkt is #{recv_pkt.pretty_print}")
+            e = RuntimeError.new("Strategy FAIL: hope #{hope_pkt.pretty_print} but get #{recv_pkt.pretty_print}")
+            e.set_backtrace(caller) # not used
+            raise UnExpectPacketError.new(e)
           elsif ret == Strategy::NONE
             #~ logger.debug("pkt jumpped:")
             next

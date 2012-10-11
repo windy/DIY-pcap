@@ -84,5 +84,21 @@ describe "Controller" do
     end
     lambda { build2.run }.should_not raise_error  
   end
+  
+  it "#run stragety fail" do
+    
+    def return_fail
+      DIY::Strategy::FAIL
+    end
+    
+    fail = lambda { |h,r,q|
+      return_fail
+    }
+    build2 = DIY::Builder.new do
+      use fail
+      pcapfiles "helper/http.pcap"
+    end
+    lambda { build2.run }.should_not raise_error  
+  end
 
 end
