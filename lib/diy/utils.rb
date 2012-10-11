@@ -1,3 +1,4 @@
+# encoding : utf-8
 module DIY
   module Utils
     class << self
@@ -5,12 +6,13 @@ module DIY
       def pp(pkt, size_print = true)
         pkt = pkt.content if pkt.kind_of?(DIY::Packet)
         return nil if pkt.nil?
-        #~ ( pkt[0..10] + "..." ).dump + "(#{pkt.size} sizes)"
         size = pkt.size
         size_print_str = ""
+        
         if size_print
           size_print_str = "(#{size} sizes)"
         end
+        
         begin
           new_pkt = pkt.dup
           Mu::Pcap::Ethernet.from_bytes(new_pkt).to_s + size_print_str
@@ -46,7 +48,6 @@ module DIY
           if ! Utils.ary_match(filter_ary, msg)
            new_bt << msg
           else
-            puts "break"
             break
           end
         end
