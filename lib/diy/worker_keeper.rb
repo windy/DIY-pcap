@@ -8,8 +8,11 @@ module DIY
     def initialize(worker, uri)
       @worker = worker
       @uri = uri
+      @running = false
+      @over = false
       yield self if block_given?
     end
+    attr_accessor :running
     
     def use_timeridconv
       require 'drb/timeridconv'
@@ -20,13 +23,21 @@ module DIY
       Thread.abort_on_exception = true
       DIY::Logger.info "serving at #{@uri}"
       DRb.start_service(@uri, @worker)
-      running = true
-      trap("INT") { running = false }
-      while running
+      @running = true
+      @over = false
+      trap("INT") { @running = false }
+      while @running
         sleep 0.5
       end
       DIY::Logger.info "bye..."
+      @worker.stop
       DRb.stop_service
+      @over = true
+    end
+    
+    def stop
+      @running = false
+      Utils.wait_until { @over }
     end
   end
 end
