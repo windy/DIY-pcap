@@ -113,7 +113,7 @@ module DIY
         raise EOFError, " end of pcaps "
       end
       @position += 1
-      DIY::Logger.info("pcap file changed: #{@pcap_files[@position]}")
+      DIY::Logger.info("pcap file changed: #{@pcap_files[@position]} ( #{@position} of #{@pcap_files.size} )")
       @off = FFI::PCap::Offline.new(@pcap_files[@position])
       @num = 0
       clear_cached_mac
