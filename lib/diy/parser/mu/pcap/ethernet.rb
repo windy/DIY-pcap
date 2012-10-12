@@ -22,6 +22,12 @@ class Ethernet < Packet
         @src = src
         @dst = dst
         @type = type
+        @vlan = false
+    end
+    attr_accessor :vlan
+    
+    def vlan?
+      vlan
     end
 
     def flow_id
@@ -45,12 +51,18 @@ class Ethernet < Packet
         src = bytes.slice!(0,6).unpack FMT_MAC
         src = MAC_TEMPLATE % src
         type = bytes.slice!(0,2).unpack(FMT_n)[0]
+        if type == ETHERTYPE_802_1Q
+          @vlan = true
+        else
+          @vlan = false
+        end
         while (type == ETHERTYPE_802_1Q)
             # Skip 4 bytes for 802.1q vlan tag field
             bytes.slice!(0,2)
             type = bytes.slice!(0,2).unpack(FMT_n)[0]
         end
         ethernet = Ethernet.new src, dst, type
+        ethernet.vlan = @vlan
         ethernet.payload = bytes
         ethernet.payload_raw = bytes
         begin
