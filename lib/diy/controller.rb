@@ -56,7 +56,7 @@ module DIY
       @round_count += 1
       DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].pretty_print}:(queue= #{pkts.size})"
       if pkts.size >= 10
-        DIY::Logger.warn "queue size too big: #{pkts.size}, maybe something error"
+        DIY::Logger.info "queue size too big: #{pkts.size}, maybe something error"
       end
       server.ready do |recv_pkt|
         next if @error_flag # error accur waiting other thread do with it

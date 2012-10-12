@@ -45,6 +45,27 @@ describe "Controller" do
     end
     lambda { builder.run }.should_not raise_error  
   end
+  
+  it "#run none_hope_skip" do
+    running = false
+    hope_skip = lambda { |h, r, q|
+      if running == false
+        running == true
+        return DIY::Strategy::NONE_HOPE_SKIP
+      else
+        return DIY::Strategy::NONE
+      end
+    }
+    
+    sleep 1
+    builder = DIY::Builder.new do
+      pcapfiles "helper/http.pcap"
+      use hope_skip
+      use DIY::SimpleStrategy.new
+      timeout 10
+    end
+    lambda { builder.run }.should_not raise_error    
+  end
     
   it "#run stragety error" do
     

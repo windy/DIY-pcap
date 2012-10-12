@@ -50,6 +50,10 @@ module DIY
           elsif ret == Strategy::NONE
             #~ logger.debug("pkt jumpped:")
             next
+          elsif ret == Strategy::NONE_HOPE_POP
+            queue.shift
+            hope_pkt = queue.first
+            next
           end # end of if
         end # end of begin
       end # end of each

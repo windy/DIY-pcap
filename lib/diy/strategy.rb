@@ -2,10 +2,11 @@ module DIY
   # 这个策略是一个最基本的: 
   # 具体返回值含义见 @BasicStrategy
   class Strategy
-    OK = true
-    OK_NO_POP = SKIP = 1
-    FAIL = false
-    NONE = nil
+    OK = "S_OK"
+    OK_NO_POP = SKIP = "S_OK_NO_POP"
+    FAIL = "S_FAIL"
+    NONE = "S_NONE"
+    NONE_HOPE_SKIP = NONE_HOPE_POP = "S_NONE_HOPE_POP" 
   end
   
   class BasicStrategy < Strategy
@@ -21,6 +22,7 @@ module DIY
     # SKIP: 同上, 可用于跳过以后所有策略队列使用.
     # FAIL: 肯定失败时使用
     # NONE: 不匹配, 让框架进行下一个报文匹配
+    # NONE_HOPE_POP: 跳过期望报文, 但继续让框架进行下一个报文匹配
     def call(hope_pkt, recv_pkt, queue)
       raise "write code here"
     end
@@ -41,7 +43,7 @@ module DIY
   class SkipSameMacStrategy < BasicStrategy
     def call(hope_pkt, recv_pkt, queue)
       if hope_pkt[0..5] == hope_pkt[6..11]
-        return OK
+        return NONE_HOPE_POP
       else
         return NONE
       end
