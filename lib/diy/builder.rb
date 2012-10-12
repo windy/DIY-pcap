@@ -8,7 +8,7 @@ module DIY
     end
     
     def use(what)
-      @strategies.unshift(what)
+      @strategies << what
     end
     
     def before_send(arg= nil, &block)

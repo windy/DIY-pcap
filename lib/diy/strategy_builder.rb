@@ -52,7 +52,8 @@ module DIY
             next
           elsif ret == Strategy::NONE_HOPE_POP
             queue.shift
-            hope_pkt = queue.first
+            # skip this round if nil found
+            return unless hope_pkt = queue.first
             next
           end # end of if
         end # end of begin
