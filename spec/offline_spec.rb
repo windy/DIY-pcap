@@ -41,4 +41,17 @@ describe DIY::Offline do
     lambda { loop do offline.nexts end }.should raise_error(DIY::EOFError)
   end
   
+  it "should open many files" do
+      files = []
+      600.times do
+        files << "helper/http.pcap"
+      end
+      puts "files size = #{files.size}"
+      offline = DIY::Offline.new(files)
+      lambda {
+      loop do
+        offline.next_pcap
+      end }.should raise_error(DIY::EOFError)
+  end
+  
 end

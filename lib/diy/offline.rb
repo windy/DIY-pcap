@@ -112,6 +112,8 @@ module DIY
       if @position >= @pcap_files.size - 1
         raise EOFError, " end of pcaps "
       end
+      # must close before's handle
+      @off.close
       @position += 1
       DIY::Logger.info("pcap file changed: #{@pcap_files[@position]} ( #{@position} of #{@pcap_files.size} )")
       @off = FFI::PCap::Offline.new(@pcap_files[@position])
