@@ -110,7 +110,11 @@ module DIY
     
     def stats_result( cost_time, fail_count )
       DIY::Logger.info " ====== Finished in #{cost_time} seconds"
-      DIY::Logger.info " ====== Total fail_count: #{fail_count} failures"
+      DIY::Logger.info " ====== #{offline_result}, #{fail_count} failures"
+    end
+    
+    def offline_result
+      sprintf "%4d files, %8d packets", @offline.files_size, @offline.now_size
     end
     
     def wait_recv_ok(pkts)
@@ -126,7 +130,7 @@ module DIY
       Timeout.timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
         loop do
           break if block.call
-          sleep 0.1
+          sleep 0.01
         end
       end
     end

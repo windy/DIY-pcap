@@ -88,7 +88,6 @@ module DIY
       DIY::Logger.info("pcap file changed: #{@pcap_files[@position]} ( #{@position} of #{@pcap_files.size} )")
       @off = FFI::PCap::Offline.new(@pcap_files[@position])
       @num = 0
-      clear_cached_mac
       fetch_cache
     end
     
@@ -98,6 +97,14 @@ module DIY
     
     def fullname
       "pkt: `#{filename}: #{@num}th' "
+    end
+    
+    def now_size
+      @num
+    end
+    
+    def files_size
+      @pcap_files.size
     end
     
   end

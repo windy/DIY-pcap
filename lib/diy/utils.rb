@@ -17,8 +17,8 @@ module DIY
           new_pkt = pkt.dup
           Mu::Pcap::Ethernet.from_bytes(new_pkt).to_s + size_print_str
         rescue Mu::Pcap::ParseError =>e
-          DIY::Logger.warn "parse error from pkt: " + ( pkt[0..10] + "..." ).dump + size_print_str
-          return  ( pkt[0..10] + "..." ).dump + size_print_str
+          DIY::Logger.debug "parse error from pkt: " + ( pkt[0..10] + "..." ).dump + size_print_str
+          return  ( pkt[0..10] + "..." ).dump + size_print_str + "( parse failed )"
         end
       end
       
