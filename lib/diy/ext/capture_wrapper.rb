@@ -1,4 +1,5 @@
 require 'ffi/pcap'
+require 'ffi/pcap/capture_wrapper'
 
 unless defined?(FFI::PCap::CaptureWrapper)
   raise "must define FFI::PCap::CaptureWrapper before monkey fix"
