@@ -9,7 +9,7 @@ module DIY
       @live = FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::CopyHandler, :promisc => true)
       DIY::Logger.info( "Listen on:  #{net} " )
       @running = false
-      #~ @live.non_blocking= true
+      @live.non_blocking= true
     end
     attr_reader :live
     
