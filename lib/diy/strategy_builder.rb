@@ -54,7 +54,8 @@ module DIY
             queue.shift
             # skip this round if nil found
             return unless hope_pkt = queue.first
-            next
+            # redo strategy
+            retry
           end # end of if
         end # end of begin
       end # end of each
