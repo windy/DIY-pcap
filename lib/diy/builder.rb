@@ -70,11 +70,23 @@ module DIY
     end
     alias pcapfiles pcapfile
     
+    def filter(reg)
+      @filter = reg
+    end
+    
+    def set_filter
+      if @filter
+        @client.filter(@filter)
+        @server.filter(@filter)
+      end
+    end
+    
     def run
       @offline ||= DIY::Offline.new('pcaps/example.pcap')
       @strategy_builder = DIY::StrategyBuilder.new
       @strategies.each { |builder| @strategy_builder.add(builder) }
       find_worker_keepers
+      set_filter
       controller = Controller.new( @client, @server, @offline, @strategy_builder )
       controller.before_send(&@before_send_hook)
       controller.timeout(@timeout) if @timeout

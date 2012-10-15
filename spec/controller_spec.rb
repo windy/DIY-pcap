@@ -121,5 +121,14 @@ describe "Controller" do
     end
     lambda { build2.run }.should_not raise_error  
   end
+  
+  it "#run with filter" do
+    build2 = DIY::Builder.new do
+      use DIY::SimpleStrategy.new
+      filter "not host 127.0.0.1"
+      pcapfiles "helper/http.pcap"
+    end
+    lambda { build2.run }.should_not raise_error  
+  end
 
 end

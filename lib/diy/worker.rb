@@ -79,6 +79,11 @@ module DIY
       Utils.wait_until { @callback_t && ! @callback_t.alive? }    
     end
     
+    # 过滤器
+    def filter(reg)
+      @live.set_filter(reg)
+    end
+    
     def inspect
       "<Worker: #{@live.net}>"
     end

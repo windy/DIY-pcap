@@ -31,6 +31,10 @@ module DIY
       DIY::Logger.debug "stopped loop recv..."
     end
     
+    def set_filter(reg)
+      @live.set_filter(reg)
+    end
+    
     def break
       DIY::Logger.debug "stopping loop recv..."
       @running = false
