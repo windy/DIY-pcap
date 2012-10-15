@@ -1,4 +1,5 @@
 # encoding : utf-8
+require 'diy/mac_learner'
 
 module DIY
   class Offline
@@ -6,6 +7,9 @@ module DIY
       @pcap_files = [ pcap_files ] if pcap_files.kind_of?(String)
       @pcap_files ||= pcap_files
       @off = FFI::PCap::Offline.new(@pcap_files[0])
+      
+      @ml = MacLearner.new
+      
       # 记录文件在目录中的位置
       @position = 0
       # 记录包在当前文件的位置
@@ -24,40 +28,19 @@ module DIY
       end
       
       ret << pkt
-      op = "=="
-      if ! fetch_cached_mac
-        cached_mac(pkt)
-      else
-        if Utils.src_mac(pkt) != fetch_cached_mac
-          op = "!="
-        end
-      end
+      where = @ml.tellme(pkt.content)
       
       loop do
-        pkt = self.next
-        if pkt.nil?
-          return ret
-        end
-        
-        if compare_mac( op, Utils.src_mac(pkt), fetch_cached_mac)
-          ret << pkt
-        else
+        pkt = fetch_one
+        return ret if pkt.nil?
+        if @ml.tellme(pkt.content) != where
           cached(pkt)
           return ret
+        else
+          ret << pkt
         end
-        
       end
       
-    end
-    
-    def compare_mac( op, mac1, mac2)
-      if op == "=="
-        mac1 == mac2
-      elsif op == "!="
-        mac1 != mac2
-      else
-        raise "error op"
-      end
     end
     
     def fetch_one
@@ -82,18 +65,6 @@ module DIY
       @tmp_pcap = pkt
     end
     
-    def cached_mac(pkt)
-      @src = Utils.src_mac(pkt)
-    end
-    
-    def fetch_cached_mac
-      @src
-    end
-    
-    def clear_cached_mac
-      @src = nil
-    end
-    
     def fetch_cache
       if @tmp_pcap
         tmp = @tmp_pcap
@@ -104,7 +75,6 @@ module DIY
     end
     
     def first_pkt?
-      puts @num
       @num == 1
     end
     public
