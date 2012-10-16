@@ -1,5 +1,6 @@
 module DIY
   class MacLearner
+    BROAD_MAC = "\355" * 6 # ff:ff:ff:ff:ff:ff
     def initialize(default_host = :A)
       @default_host = default_host
       @table = {}
@@ -13,6 +14,7 @@ module DIY
     end
     
     def _learn(mac, where)
+      return if mac == BROAD_MAC
       @table[mac] = where
     end
     
