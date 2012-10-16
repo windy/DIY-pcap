@@ -13,6 +13,11 @@ module DIY
     end
     
     def run
+      trap "INT" do
+        DIY::Logger.info "bye.."
+        stop
+        exit 0
+      end
       client = @client
       server = @server
       
@@ -48,6 +53,11 @@ module DIY
       DRb.stop_service
       end_time = Time.now
       stats_result( end_time - start_time, @fail_count )
+    end
+    
+    def stop
+      @client.terminal
+      @server.terminal
     end
     
     def one_round( client, server, pkts )
