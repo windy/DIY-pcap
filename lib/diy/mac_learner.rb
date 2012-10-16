@@ -20,8 +20,17 @@ module DIY
     # 如果包不在学习表内, 返回缺省端口(默认为A)
     def tellme(packet)
       src_p = src(packet)
+      dst_p = dst(packet)
+      
+      if @table.has_key?(src_p) && @table.has_key?(dst_p) && @table[src_p] == @table[dst_p]
+        raise "Found the same mac learner: packet is #{Utils.pp(packet)}"
+      end
+      
       if @table.has_key? src_p
         where =  @table[src_p]
+      elsif @table.has_key? dst_p
+        where = other( @table[dst_p] )
+        _learn( src(packet), where )
       else
         where = @default_host
         _learn( src(packet), where )
