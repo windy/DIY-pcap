@@ -26,7 +26,9 @@ module DIY
       
       if src_p == dst_p
         DIY::Logger.debug("Found SRC mac is the same with DST mac: #{Utils.pp(packet)}")
-        return @default_host
+        where = @default_host
+        _learn(src_p, where)
+        return where
       end
       
       if @table.has_key?(src_p) && @table.has_key?(dst_p) && @table[src_p] == @table[dst_p]
