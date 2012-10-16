@@ -23,12 +23,12 @@ module DIY
       dst_p = dst(packet)
       
       if src_p == dst_p
-        DIY::Logger.warn("Found SRC mac is the same with DST mac: #{Utils.pp(packet)}")
+        DIY::Logger.debug("Found SRC mac is the same with DST mac: #{Utils.pp(packet)}")
         return @default_host
       end
       
       if @table.has_key?(src_p) && @table.has_key?(dst_p) && @table[src_p] == @table[dst_p]
-        raise "Found the same mac learner: packet is #{Utils.pp(packet)}"
+        DIY::Logger.warn "Found the same mac learner: packet is #{Utils.pp(packet)}"
       end
       
       if @table.has_key? src_p
