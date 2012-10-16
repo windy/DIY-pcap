@@ -109,8 +109,8 @@ module DIY
     end
     
     def stats_result( cost_time, fail_count )
-      DIY::Logger.info " ====== Finished in #{cost_time} seconds"
-      DIY::Logger.info " ====== #{offline_result}, #{fail_count} failures"
+      DIY::Logger.info " Finished in #{cost_time} seconds"
+      DIY::Logger.info " #{offline_result}, #{fail_count} failures"
     end
     
     def offline_result
