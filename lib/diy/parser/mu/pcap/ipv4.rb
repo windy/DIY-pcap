@@ -81,7 +81,8 @@ class IPv4 < IP
                 when IPPROTO_UDP
                     ipv4.payload = UDP.from_bytes payload
                 when IPPROTO_SCTP
-                    ipv4.payload = SCTP.from_bytes payload
+                    #ipv4.payload = SCTP.from_bytes payload
+                    ipv4.payload = payload
                 else
                     ipv4.payload = payload
                 end
