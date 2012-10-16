@@ -48,6 +48,7 @@ module DIY
             @block.call(pkt) if @block
           rescue DRb::DRbConnError
             DIY::Logger.info "closed connection by controller"
+            @start = false
             @queue.clear
           end
         end
