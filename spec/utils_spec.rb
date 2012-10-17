@@ -5,6 +5,11 @@ describe DIY::Utils do
     DIY::Utils.pp('a' * 100).should match(/\(100 sizes\)/)
   end
   
+  it "#pp parse error" do
+    badtcp = File.open('helper/badtcp.dat', 'rb') { |io| io.read }
+    lambda { puts DIY::Utils.pp(badtcp) }.should_not raise_error
+  end
+  
   it "#pp false" do
     DIY::Utils.pp('a' * 100, false).should_not match(/\(100 sizes\)/)
   end
