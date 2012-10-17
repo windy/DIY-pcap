@@ -22,8 +22,8 @@ module DIY
     def nexts
       begin
         _nexts
-      rescue DIY::MacLearnConflictError
-        DIY::Logger.warn "MacLearnConflict Found when parse #{fullname}"
+      rescue DIY::MacLearnConflictError, DIY::PacketInvalidError =>e
+        DIY::Logger.warn "Found Error when parse #{fullname}: #{e.message}"
         next_pcap
         retry
       end

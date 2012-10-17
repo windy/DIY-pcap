@@ -46,6 +46,7 @@ module DIY
     # 报告包所在的端口 A or B
     # 如果包不在学习表内, 返回缺省端口(默认为A)
     def tellme(packet)
+      valid!(packet)
       src_p = src(packet)
       dst_p = dst(packet)
       
@@ -58,7 +59,7 @@ module DIY
       
       if src_p != dst_p && get(src_p) && get(src_p) == get(dst_p)
         if (get_time(src_p) - get_time(dst_p)).abs <= LEARN_TIME
-          DIY::Logger.warn "Found the same mac learner: packet is #{Utils.pp(packet)}"
+          #~ DIY::Logger.warn "Found the same mac learner: packet is #{Utils.pp(packet)}"
           raise DIY::MacLearnConflictError, "Found mac learn port confict"
         else
           cls = get_time(src_p) > get_time(dst_p) ? dst_p : src_p
@@ -73,7 +74,6 @@ module DIY
         _learn( src_p, where )
       else
         where = @default_host
-        puts "111"
         _learn( src_p, where )
       end
       #~ _learn( dst(packet), other(where) )
@@ -98,6 +98,10 @@ module DIY
     
     def dst(packet)
       Utils.dst_mac(packet)
+    end
+    
+    def valid!(packet)
+      raise DIY::PacketInvalidError, "packet too small" unless packet.size >= 12
     end
   end
 end

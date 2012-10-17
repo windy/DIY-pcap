@@ -42,6 +42,7 @@ describe DIY::MacLearner do
     # 解决冲突
     @ml.instance_variable_get("@table")[ "c"*6 ][1] = Time.now - 10*60
     @ml.tellme(e_pkt).should == :A
+    @ml.tellme(e_pkt).should == :A
     
     # 源目的相同的
     ee_pkt = make_packet( "a", "a")

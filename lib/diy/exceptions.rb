@@ -11,6 +11,7 @@ module DIY
   
   # 报文分解失败
   class MacLearnConflictError < Error; end
+  class PacketInvalidError < Error; end
   
   class UserError < Error
     def initialize(real_exception)
