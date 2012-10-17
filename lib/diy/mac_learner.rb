@@ -76,7 +76,7 @@ module DIY
         where = @default_host
         _learn( src_p, where )
       end
-      #~ _learn( dst(packet), other(where) )
+      _learn( dst_p, other(where) )
       where
     end
     

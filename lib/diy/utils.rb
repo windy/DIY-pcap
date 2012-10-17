@@ -34,7 +34,11 @@ module DIY
       
       def pp_mac(mac)
         raise "MAC MUST BE 6 sizes" unless mac.size == 6
-        '%02x:%02x:%02x:%02x:%02x:%02x' % mac
+        begin
+          '%02x:%02x:%02x:%02x:%02x:%02x' % mac
+        rescue ArgumentError
+          mac
+        end
       end
       
       def wait_until( timeout = 20, &block )

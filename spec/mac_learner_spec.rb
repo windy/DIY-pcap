@@ -20,14 +20,14 @@ describe DIY::MacLearner do
     pkt = make_packet( "a", "b" )
     @ml.tellme(pkt)
     @ml.tellme(pkt).should == :A
-    @ml.instance_variable_get("@table").size.should == 1
+    #~ @ml.instance_variable_get("@table").size.should == 1
     b_pkt = make_packet( "b" , "a" )
     @ml.tellme(b_pkt).should == :B
-    @ml.instance_variable_get("@table").size.should == 2
+    #~ @ml.instance_variable_get("@table").size.should == 2
     # 另一个新包
     c_pkt = make_packet( "c", "d" )
     @ml.tellme(c_pkt).should == :A
-    @ml.instance_variable_get("@table").size.should == 3
+    #~ @ml.instance_variable_get("@table").size.should == 3
     #~ pp @ml.instance_variable_get("@table")
     # 目标地址选定的
     d_pkt = make_packet( "d", "a")
@@ -46,7 +46,7 @@ describe DIY::MacLearner do
     
     # 源目的相同的
     ee_pkt = make_packet( "a", "a")
-    @ml.tellme(ee_pkt).should == :A
+    lambda { @ml.tellme(ee_pkt) }.should raise_error(DIY::MacLearnConflictError)
     
   end
 end
