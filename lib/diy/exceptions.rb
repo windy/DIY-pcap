@@ -9,6 +9,9 @@ module DIY
   # 没有报文被指定时
   class ZeroOfflineError < Error; end
   
+  # 报文分解失败
+  class MacLearnConflictError < Error; end
+  
   class UserError < Error
     def initialize(real_exception)
       @real_exception = real_exception

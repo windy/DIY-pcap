@@ -9,6 +9,10 @@ describe DIY::Offline do
     lambda { offline.next_pcap }.should raise_error(DIY::EOFError)
   end
   
+  it "no file" do
+    lambda { DIY::Offline.new([]) }.should raise_error(DIY::ZeroOfflineError)
+  end
+  
   it "should get next special first_pkt" do
     files = [ "helper/app.pcap", "helper/gre.pcap" ]
     offline = DIY::Offline.new(files)

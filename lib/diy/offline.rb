@@ -6,6 +6,7 @@ module DIY
     def initialize( pcap_files )
       @pcap_files = [ pcap_files ] if pcap_files.kind_of?(String)
       @pcap_files ||= pcap_files
+      raise ZeroOfflineError, "no files found" if @pcap_files.size == 0
       @off = FFI::PCap::Offline.new(@pcap_files[0])
       
       @ml = MacLearner.new
@@ -19,6 +20,16 @@ module DIY
     end
     
     def nexts
+      begin
+        _nexts
+      rescue DIY::MacLearnConflictError
+        DIY::Logger.warn "MacLearnConflict Found when parse #{fullname}"
+        next_pcap
+        retry
+      end
+    end
+    
+    def _nexts
       ret = []
       # 取一个
       pkt = fetch_one

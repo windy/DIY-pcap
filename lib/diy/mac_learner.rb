@@ -1,6 +1,7 @@
 module DIY
   class MacLearner
     BROAD_MAC = "\377" * 6 # ff:ff:ff:ff:ff:ff
+    LEARN_TIME = 60 * 5 # five minutes
     def initialize(default_host = :A)
       @default_host = default_host
       @table = {}
@@ -15,7 +16,31 @@ module DIY
     
     def _learn(mac, where)
       return if mac == BROAD_MAC
-      @table[mac] = where
+      set(mac, where)
+    end
+    
+    def get(mac)
+      @table[mac] && @table[mac][0]
+    end
+    
+    def get_time(mac)
+      @table[mac] && @table[mac][1]
+    end
+    
+    def set(mac, where)
+      time_now = Time.now
+      if @table[mac]
+        if @table[mac][0] != where
+          if (time_now - @table[mac][1]) <= LEARN_TIME
+            raise DIY::MacLearnConflictError, "Found mac learn port confict when set #{Utils.pp_mac(mac)} to #{where}"
+          end
+        end
+      end
+      @table[mac] = [ where, time_now ]
+    end
+    
+    def clear(mac)
+      @table[mac] = nil
     end
     
     # 报告包所在的端口 A or B
@@ -26,25 +51,32 @@ module DIY
       
       if src_p == dst_p
         DIY::Logger.debug("Found SRC mac is the same with DST mac: #{Utils.pp(packet)}")
-        where = @default_host
-        _learn(src_p, where)
-        return where
+        #~ where = @default_host
+        #~ _learn(src_p, where)
+        #~ return where
       end
       
-      if @table.has_key?(src_p) && @table.has_key?(dst_p) && @table[src_p] == @table[dst_p]
-        DIY::Logger.warn "Found the same mac learner: packet is #{Utils.pp(packet)}"
+      if src_p != dst_p && get(src_p) && get(src_p) == get(dst_p)
+        if (get_time(src_p) - get_time(dst_p)).abs <= LEARN_TIME
+          DIY::Logger.warn "Found the same mac learner: packet is #{Utils.pp(packet)}"
+          raise DIY::MacLearnConflictError, "Found mac learn port confict"
+        else
+          cls = get_time(src_p) > get_time(dst_p) ? dst_p : src_p
+          clear(cls)
+        end
       end
       
-      if @table.has_key? src_p
-        where =  @table[src_p]
-      elsif @table.has_key? dst_p
-        where = other( @table[dst_p] )
-        _learn( src(packet), where )
+      if get(src_p)
+        where =  get(src_p)
+      elsif get(dst_p)
+        where = other( get(dst_p) )
+        _learn( src_p, where )
       else
         where = @default_host
-        _learn( src(packet), where )
+        puts "111"
+        _learn( src_p, where )
       end
-      _learn( dst(packet), other(where) )
+      #~ _learn( dst(packet), other(where) )
       where
     end
     
