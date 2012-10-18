@@ -35,9 +35,9 @@ module DIY
       def pp_mac(mac)
         raise "MAC MUST BE 6 sizes" unless mac.size == 6
         begin
-          '%02x:%02x:%02x:%02x:%02x:%02x' % mac
+          '%02x:%02x:%02x:%02x:%02x:%02x' % mac.unpack('C6')
         rescue ArgumentError
-          mac
+          mac.dump
         end
       end
       

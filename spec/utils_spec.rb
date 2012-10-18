@@ -21,5 +21,9 @@ describe DIY::Utils do
   it "#dst_mac" do
     DIY::Utils.dst_mac( 'a' * 100 ).should == "a" * 6
   end
+  
+  it "#pp_mac" do
+    DIY::Utils.pp_mac( "\377" * 6 ).should == "ff:ff:ff:ff:ff:ff"
+  end
 
 end
