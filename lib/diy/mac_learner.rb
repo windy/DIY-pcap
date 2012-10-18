@@ -1,6 +1,7 @@
 module DIY
   class MacLearner
     BROAD_MAC = "\377" * 6 # ff:ff:ff:ff:ff:ff
+    GROUP_MAC = 1
     LEARN_TIME = 60 * 5 # five minutes
     def initialize(default_host = :A)
       @default_host = default_host
@@ -15,7 +16,9 @@ module DIY
     end
     
     def _learn(mac, where)
+      # 除去组播与广播
       return if mac == BROAD_MAC
+      return if mac[0] & GROUP_MAC == 1
       set(mac, where)
     end
     
