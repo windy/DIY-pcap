@@ -15,6 +15,8 @@ module DIY
       @position = 0
       # 记录包在当前文件的位置
       @num = 0
+      # 记录所有包的个数
+      @total = 0
       
       @tmp_pcap = nil
     end
@@ -70,6 +72,7 @@ module DIY
     def next
       pkt = @off.next
       @num += 1
+      @total += 1
       return nil if pkt.nil?
 
       return Packet.new(pkt.copy.body, fullname)
@@ -115,7 +118,7 @@ module DIY
     end
     
     def now_size
-      @num
+      @total
     end
     
     def files_size
