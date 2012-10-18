@@ -34,7 +34,7 @@ module DIY
           raise StrategyCallError.new(e)
         else
           if ret == Strategy::OK
-            logger.info("pkt same:")
+            logger.info("pkt same: #{hope_pkt.pretty_print}")
             queue.shift
             return
           elsif ret == Strategy::OK_NO_POP
