@@ -94,6 +94,20 @@ module DIY
       end
     end
     
+    def size
+      @table.size
+    end
+    
+    def dump
+      ret = "begin dumpping...\n"
+      @table.each do |k, v|
+        mac = Utils.pp_mac(k)
+        ret += "#{mac} -> "
+        ret += "#{v[0]}, "
+        ret += "created at: #{ v[1].strftime("%H:%M:%S") }\n"
+      end
+      ret += "end dump...\n"
+    end
     
     private
     def  src(packet)

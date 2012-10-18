@@ -21,6 +21,10 @@ module DIY
       @tmp_pcap = nil
     end
     
+    def mac_learner
+      @ml
+    end
+    
     def nexts
       begin
         _nexts

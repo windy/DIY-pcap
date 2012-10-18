@@ -35,6 +35,8 @@ module DIY
             client.terminal
             server.terminal
             DIY::Logger.info "Error_on_stop flag opened, stopping..."
+            DIY::Logger.info "Dump mac learn table(size is #{@offline.mac_learner.size})... "
+            DIY::Logger.info @offline.mac_learner.dump
             break
           end
           #~ begin
