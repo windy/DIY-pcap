@@ -10,6 +10,7 @@ module DIY
       @strategy = strategy
       @before_send = nil
       @timeout = nil
+      @error_on_stop = nil
     end
     
     def run
@@ -27,23 +28,30 @@ module DIY
         begin
           pkts = @offline.nexts
           one_round( client, server, pkts )
-          client, server = server, client
         rescue HopePacketTimeoutError, UserError, FFI::PCap::LibError => e
           DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].pretty_print} ") if e.kind_of?(HopePacketTimeoutError)
           @fail_count += 1
-          begin
-            @offline.next_pcap
-            server.terminal
-          rescue EOFError
+          if @error_on_stop
             client.terminal
             server.terminal
+            DIY::Logger.info "Error_on_stop flag opened, stopping..."
             break
           end
-          client,server = @client, @server
+          #~ begin
+            #~ @offline.next_pcap
+            #~ server.terminal
+          #~ rescue EOFError
+            #~ client.terminal
+            #~ server.terminal
+            #~ break
+          #~ end
+          #~ client,server = @client, @server
         rescue EOFError
           client.terminal
           server.terminal
           break
+        ensure
+          client, server = server, client
         end
       end
       DRb.stop_service
@@ -120,6 +128,10 @@ module DIY
     
     def timeout(timeout)
       @timeout = timeout
+    end
+    
+    def error_on_stop(*)
+      @error_on_stop = true
     end
     
     def stats_result( cost_time, fail_count )

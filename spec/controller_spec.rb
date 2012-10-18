@@ -131,4 +131,15 @@ describe "Controller" do
     lambda { build2.run }.should_not raise_error  
   end
 
+  it "#run with error_on_stop" do
+    build2 = DIY::Builder.new do
+      use DIY::SimpleStrategy.new
+      filter "not tcp"
+      error_on_stop
+      pcapfiles ["helper/http.pcap", "helper/gre.pcap"]
+      timeout 1
+    end
+    lambda { build2.run }.should_not raise_error    
+  end
+
 end
