@@ -61,17 +61,18 @@ module DIY
       end
       
       if src_p != dst_p && get(src_p) && get(src_p) == get(dst_p)
-        if (get_time(src_p) - get_time(dst_p)).abs <= LEARN_TIME
+        #~ if (get_time(src_p) - get_time(dst_p)).abs <= LEARN_TIME
           #~ DIY::Logger.warn "Found the same mac learner: packet is #{Utils.pp(packet)}"
           raise DIY::MacLearnConflictError, "Found mac learn port confict"
-        else
-          cls = get_time(src_p) > get_time(dst_p) ? dst_p : src_p
-          clear(cls)
-        end
+        #~ else
+          #~ cls = get_time(src_p) > get_time(dst_p) ? dst_p : src_p
+          #~ clear(cls)
+        #~ end
       end
       
       if get(src_p)
         where =  get(src_p)
+        _learn( src_p, where )
       elsif get(dst_p)
         where = other( get(dst_p) )
         _learn( src_p, where )

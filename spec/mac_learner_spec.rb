@@ -40,9 +40,9 @@ describe DIY::MacLearner do
     e_pkt = make_packet( "\2", "\6" )
     lambda { @ml.tellme(e_pkt) }.should raise_error(DIY::MacLearnConflictError)
     # 解决冲突
-    @ml.instance_variable_get("@table")[ "\6"*6 ][1] = Time.now - 10*60
-    @ml.tellme(e_pkt).should == :A
-    @ml.tellme(e_pkt).should == :A
+    #~ @ml.instance_variable_get("@table")[ "\6"*6 ][1] = Time.now - 10*60
+    #~ @ml.tellme(e_pkt).should == :A
+    #~ @ml.tellme(e_pkt).should == :A
     
     # 源目的相同的
     ee_pkt = make_packet( "\2", "\2")
