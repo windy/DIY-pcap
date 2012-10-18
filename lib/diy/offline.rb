@@ -43,7 +43,11 @@ module DIY
       
       loop do
         pkt = fetch_one
-        return ret if pkt.nil?
+        #~ return ret if pkt.nil?
+        if pkt.nil?
+          next_pcap
+          pkt = fetch_one
+        end
         if @ml.tellme(pkt.content) != where
           cached(pkt)
           return ret

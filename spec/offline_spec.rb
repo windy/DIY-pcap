@@ -37,9 +37,9 @@ describe DIY::Offline do
     offline = DIY::Offline.new(files)
     offline.nexts.size.should == 1
     offline.nexts.size.should == 1
-    offline.nexts.size.should == 1
+    offline.nexts.size.should == 2
     #change to next
-    offline.nexts.size.should == 1
+    #~ offline.nexts.size.should == 1
     offline.nexts.size.should == 2
     offline.nexts.size.should == 2
     lambda { loop do offline.nexts end }.should raise_error(DIY::EOFError)
