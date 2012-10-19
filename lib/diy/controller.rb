@@ -31,7 +31,7 @@ module DIY
         rescue HopePacketTimeoutError, UserError, FFI::PCap::LibError => e
           DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].pretty_print} ") if e.kind_of?(HopePacketTimeoutError)
           @fail_count += 1
-          if @error_on_stop
+          if @error_on_stop and e.kind_of?(HopePacketTimeoutError)
             client.terminal
             server.terminal
             DIY::Logger.info "Error_on_stop flag opened, stopping..."
