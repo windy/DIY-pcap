@@ -88,11 +88,14 @@ module DIY
       if pkts.size >= 10
         DIY::Logger.info "queue size too big: #{pkts.size}, maybe something error"
       end
-      server.ready do |recv_pkt|
+      
+      recv_pkt_keeper = nil
+      
+      recv_pkt_proc = lambda do |recv_pkt|
         next if @error_flag # error accur waiting other thread do with it
-        recv_pkt = Packet.new(recv_pkt)
+        recv_pkt_keeper = Packet.new(recv_pkt)
         begin
-          @strategy.call(pkts.first, recv_pkt, pkts)
+          @strategy.call(pkts.first, recv_pkt_keeper, pkts)
         rescue DIY::UserError =>e
           DIY::Logger.warn("UserError Catch: " + e.inspect)
           e.backtrace.each do |msg|
@@ -101,6 +104,8 @@ module DIY
           @error_flag = e
         end
       end
+      
+      server.ready(&recv_pkt_proc)
       client_send(client, pkts)
       wait_recv_ok(pkts)
       server.terminal
