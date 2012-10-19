@@ -50,6 +50,9 @@ module DIY
             DIY::Logger.info "closed connection by controller"
             @start = false
             @queue.clear
+          rescue RangeError=>e
+            DIY::Utils.print_backtrace(e)
+            raise e
           end
         end
         DIY::Logger.debug "stopped loop callback"

@@ -63,6 +63,14 @@ module DIY
         new_bt
       end
       
+      def print_backtrace(e)
+        DIY::Logger.info "Dump Exception: #{e.class} -> #{e.message}..."
+        e.backtrace.each do |msg|
+          DIY::Logger.info(msg)
+        end
+        DIY::Logger.info("Dump end!")
+      end
+      
       def ary_match(ary, msg)
         ary.each do |e|
           return true if /#{Regexp.escape(e)}/ === msg

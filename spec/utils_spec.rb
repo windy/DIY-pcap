@@ -25,5 +25,13 @@ describe DIY::Utils do
   it "#pp_mac" do
     DIY::Utils.pp_mac( "\377" * 6 ).should == "ff:ff:ff:ff:ff:ff"
   end
+  
+  it "#print_backtrace" do
+    begin
+      raise 
+    rescue 
+      lambda { DIY::Utils.print_backtrace($!) }.should_not raise_error
+    end
+  end
 
 end
