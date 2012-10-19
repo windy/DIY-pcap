@@ -26,7 +26,13 @@ module DIY
       
       loop do
         begin
-          pkts = @offline.nexts
+          pkts, where = @offline.nexts
+          case where
+          when :A
+            client, server = @client, @server
+          when :B
+            client, server = @server, @client
+          end
           one_round( client, server, pkts )
         rescue HopePacketTimeoutError, UserError, FFI::PCap::LibError => e
           DIY::Logger.warn( "Timeout: Hope packet is #{pkts[0].pretty_print} ") if e.kind_of?(HopePacketTimeoutError)
@@ -53,7 +59,7 @@ module DIY
           server.terminal
           break
         ensure
-          client, server = server, client
+          #~ client, server = server, client
         end
       end
       DRb.stop_service

@@ -27,7 +27,7 @@ module DIY
     
     def nexts
       begin
-        _nexts
+        return _nexts
       rescue DIY::MacLearnConflictError, DIY::PacketInvalidError =>e
         DIY::Logger.warn "Found Error when parse #{fullname}: #{e.message}"
         next_pcap
@@ -49,14 +49,14 @@ module DIY
       
       loop do
         pkt = fetch_one
-        #~ return ret if pkt.nil?
-        if pkt.nil?
-          next_pcap
-          pkt = fetch_one
-        end
+        return [ret, where] if pkt.nil?
+        #~ if pkt.nil?
+          #~ next_pcap
+          #~ pkt = fetch_one
+        #~ end
         if @ml.tellme(pkt.content) != where
           cached(pkt)
-          return ret
+          return [ret, where]
         else
           ret << pkt
         end
