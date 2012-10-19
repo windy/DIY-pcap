@@ -89,26 +89,31 @@ module DIY
         DIY::Logger.info "queue size too big: #{pkts.size}, maybe something error"
       end
       
-      @recv_pkt_keeper = nil
+      recv_pkt_proc_set( pkts )
+      server.ready(&@recv_pkt_proc)
       
-      @recv_pkt_proc = lambda do |recv_pkt|
-        next if @error_flag # error accur waiting other thread do with it
-        @recv_pkt_keeper = Packet.new(recv_pkt.dup)
+      client_send(client, pkts)
+      wait_recv_ok(pkts)
+      server.terminal
+    end
+    
+    # 设置回调入口, 由 worker 通过DRb 远程调用
+    def recv_pkt_proc_set(queue)
+      @queue_keeper = queue
+      # 不重新赋值, 防止 DRb 回收
+      @recv_pkt_proc ||= lambda do |recv_pkt|
         begin
-          @strategy.call(pkts.first, @recv_pkt_keeper, pkts)
+          next if @error_flag # error accur waiting other thread do with it
+          @recv_pkt_keeper = Packet.new(recv_pkt)
+          @strategy.call(@queue_keeper.first, @recv_pkt_keeper, @queue_keeper)
         rescue DIY::UserError =>e
           DIY::Logger.warn("UserError Catch: " + e.inspect)
           e.backtrace.each do |msg|
             DIY::Logger.info(msg)
           end
           @error_flag = e
-        end
+        end        
       end
-      
-      server.ready(&@recv_pkt_proc)
-      client_send(client, pkts)
-      wait_recv_ok(pkts)
-      server.terminal
     end
     
     def client_send(client, pkts)

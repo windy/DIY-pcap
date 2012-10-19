@@ -45,7 +45,7 @@ module DIY
           begin
             pkt = @queue.pop
             #~ DIY::Logger.info "callback: #{pkt}"
-            @block.call(pkt) if @block
+            @block.call(pkt) if @start and @block
           rescue DRb::DRbConnError
             DIY::Logger.info "closed connection by controller"
             @start = false
@@ -61,6 +61,7 @@ module DIY
     
     #收包
     def ready(&block)
+      @start = false
       DIY::Logger.info("start recv pkt")
       @block = block
       @queue.clear
