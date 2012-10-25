@@ -45,14 +45,15 @@ module DIY
             DIY::Logger.info @offline.mac_learner.dump
             break
           end
-          #~ begin
-            #~ @offline.next_pcap
-            #~ server.terminal
-          #~ rescue EOFError
-            #~ client.terminal
-            #~ server.terminal
-            #~ break
-          #~ end
+          begin
+            @offline.next_pcap
+            client.terminal
+            server.terminal
+          rescue EOFError
+            client.terminal
+            server.terminal
+            break
+          end
           #~ client,server = @client, @server
         rescue EOFError
           client.terminal
