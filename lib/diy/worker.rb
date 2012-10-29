@@ -30,7 +30,10 @@ module DIY
       @recv_t = Thread.new do
         DIY::Logger.info "start thread recving pkt..."
         @live.loop do |this, pkt|
-          next unless @start
+          if ! @start
+            @recv_stop_flag = true
+            next
+          end
           @queue.push(pkt.body)
         end
         DIY::Logger.debug "worker: stopped loop recv"
@@ -45,7 +48,15 @@ module DIY
           begin
             pkt = @queue.pop
             #~ DIY::Logger.info "callback: #{pkt}"
-            @block.call(pkt) if @start and @block
+            
+            if ! @start
+              @callback_stop_flag = true
+              next
+            end
+            
+            if @block and pkt
+              @block.call(pkt)
+            end
           rescue DRb::DRbConnError
             DIY::Logger.info "closed connection by controller"
             @start = false
@@ -61,24 +72,22 @@ module DIY
     
     #收包
     def ready(&block)
-      @start = false
+      stopping
       DIY::Logger.info("start recv pkt")
       @block = block
-      @queue.clear
-      @start = true
+      start
     end
     
     # 停止收发
     def terminal
       DIY::Logger.info("stop recv pkt")
-      @start = false
-      @queue.clear
+      pause
     end
     
     # 停止线程
     def stop
       @running = false
-      @queue.push nil
+      pause
       @live.break
       Utils.wait_until { @recv_t && ! @recv_t.alive? }
       Utils.wait_until { @callback_t && ! @callback_t.alive? }    
@@ -91,6 +100,45 @@ module DIY
     
     def inspect
       "<Worker: #{@live.net}>"
+    end
+    
+    private
+    def stopping
+      pause
+      while ! paused?
+      end
+    end
+    
+    def pause
+      @start = false
+      @recv_stop_flag = false
+      @callback_stop_flag = false
+      @queue.clear
+      @queue.push nil
+    end
+    
+    def start
+      @start = true
+    end
+    
+    def paused?
+      ! @start and recv_stop? and callback_stop?
+    end
+    
+    def recv_stop
+      @recv_stop_flag = true
+    end
+    
+    def recv_stop?
+      @recv_stop_flag
+    end
+    
+    def callback_stop
+      @callback_stop_flag = true
+    end
+    
+    def callback_stop?
+      @callback_stop_flag
     end
   
   end

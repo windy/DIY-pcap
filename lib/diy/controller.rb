@@ -91,8 +91,9 @@ module DIY
       end
       
       recv_pkt_proc_set( pkts )
+      @ready = false
       server.ready(&@recv_pkt_proc)
-      
+      @ready = true
       client_send(client, pkts)
       wait_recv_ok(pkts)
       server.terminal
@@ -104,6 +105,7 @@ module DIY
       # 不重新赋值, 防止 DRb 回收
       @recv_pkt_proc ||= lambda do |recv_pkt|
         begin
+          next unless @ready # strip this recv pkt unless it's ready to.
           next if @error_flag # error accur waiting other thread do with it
           @recv_pkt_keeper = Packet.new(recv_pkt)
           @strategy.call(@queue_keeper.first, @recv_pkt_keeper, @queue_keeper)

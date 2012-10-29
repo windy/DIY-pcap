@@ -45,7 +45,7 @@ module DIY
         timeout(timeout) do
           loop do
             break if block.call
-            sleep 0.01
+            sleep 0.001
           end
         end
       end
