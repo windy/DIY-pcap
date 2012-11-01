@@ -31,6 +31,7 @@ module DIY
         DIY::Logger.info "start thread recving pkt..."
         @live.loop do |this, pkt|
           if ! @start
+            DIY::Logger.debug "looprecv stop..."
             @recv_stop_flag = true
             next
           end
@@ -45,14 +46,15 @@ module DIY
       @callback_t = Thread.new do 
         #~ DIY::Logger.info "start thread callbacking pkt..."
         while @running do
+          if ! @start
+            DIY::Logger.debug "callback stop..."
+            @callback_stop_flag = true
+            sleep 0.01
+            next
+          end        
           begin
             pkt = @queue.pop
             #~ DIY::Logger.info "callback: #{pkt}"
-            
-            if ! @start
-              @callback_stop_flag = true
-              next
-            end
             
             if @block and pkt
               @block.call(pkt)
@@ -107,9 +109,11 @@ module DIY
       pause
       while ! paused?
       end
+      DIY::Logger.debug "stop success"
     end
     
     def pause
+      DIY::Logger.debug "pausing..."
       @start = false
       @recv_stop_flag = false
       @callback_stop_flag = false
