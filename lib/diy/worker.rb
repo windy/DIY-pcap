@@ -31,7 +31,7 @@ module DIY
         DIY::Logger.info "start thread recving pkt..."
         @live.loop do |this, pkt|
           if ! @start
-            DIY::Logger.debug "looprecv stop..."
+            DIY::Logger.debug "looprecv stop..." unless @recv_stop_flag
             @recv_stop_flag = true
             next
           end
@@ -47,7 +47,7 @@ module DIY
         #~ DIY::Logger.info "start thread callbacking pkt..."
         while @running do
           if ! @start
-            DIY::Logger.debug "callback stop..."
+            DIY::Logger.debug "callback stop..." unless @callback_stop_flag
             @callback_stop_flag = true
             sleep 0.01
             next
@@ -83,7 +83,7 @@ module DIY
     # 停止收发
     def terminal
       DIY::Logger.info("stop recv pkt")
-      pause
+      stopping
     end
     
     # 停止线程
