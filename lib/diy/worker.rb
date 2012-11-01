@@ -35,6 +35,7 @@ module DIY
             @recv_stop_flag = true
             next
           end
+          next unless pkt
           @queue.push(pkt.body)
         end
         DIY::Logger.debug "worker: stopped loop recv"

@@ -26,7 +26,8 @@ module DIY
           next unless pkt
           block.call(this, pkt)
         end
-        sleep 0.1
+        block.call(nil, nil) # at least every 0.01 min do it. 
+        sleep 0.01
       end
       DIY::Logger.debug "stopped loop recv..."
     end
