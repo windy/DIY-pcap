@@ -35,6 +35,12 @@ module DIY
             @recv_stop_flag = true
             next
           end
+          
+          if @start
+            DIY::Logger.debug "looprecv start..." if @recv_stop_flag
+            @recv_stop_flag = false
+          end
+          
           next unless pkt
           @queue.push(pkt.body)
         end
@@ -52,7 +58,13 @@ module DIY
             @callback_stop_flag = true
             sleep 0.01
             next
-          end        
+          end 
+
+          if @start
+            DIY::Logger.debug "callback start..." if @callback_stop_flag
+            @callback_stop_flag = false
+          end
+          
           begin
             pkt = @queue.pop
             #~ DIY::Logger.info "callback: #{pkt}"
@@ -123,7 +135,15 @@ module DIY
     end
     
     def start
+      DIY::Logger.debug "starting..."
       @start = true
+      while ! start?
+      end
+      DIY::Logger.debug "start success"
+    end
+    
+    def start?
+      @start and ! recv_stop? and ! callback_stop?
     end
     
     def paused?
