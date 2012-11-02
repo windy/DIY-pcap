@@ -11,6 +11,7 @@ module DIY
       @before_send = nil
       @timeout = nil
       @error_on_stop = nil
+      @fail_count = 0
     end
     
     def run
@@ -86,9 +87,12 @@ module DIY
       @round_count = 0 unless @round_count
       @round_count += 1
       DIY::Logger.info "round #{@round_count}: (c:#{client.__drburi} / s:#{server.__drburi}) #{pkts[0].pretty_print}:(queue= #{pkts.size})"
-      if pkts.size >= 10
-        DIY::Logger.info "queue size too big: #{pkts.size}, maybe something error"
-      end
+      
+      # check is client or server at this time
+      # give the flag to **before_send** block
+      client_or_server = client == @client
+      
+      before_send_call(pkts, client_or_server)
       
       recv_pkt_proc_set( pkts )
       @ready = false
@@ -120,27 +124,30 @@ module DIY
     end
     
     def client_send(client, pkts)
-      if @before_send
-        pkts = pkts.collect do |pkt| 
-          content = pkt.content
-          begin
-            pkt.content = @before_send.call(content)
-          rescue Exception => e
-            DIY::Logger.warn("UserError Catch: " + error = BeforeSendCallError.new(e) )
-            error.backtrace.each do |msg|
-              DIY::Logger.info(msg)
-            end
-            raise error
-          end
-          pkt
-        end
-      end
+      #~ pkt_contents = pkts.collect { |pkt| pkt.content }
       begin
         client.inject(pkts)
       rescue FFI::PCap::LibError =>e
-        DIY::Logger.warn("SendPacketError Catch: " + e )
+        DIY::Logger.info("SendPacketError Catch: " + e )
         raise e
       end
+    end
+    
+    def before_send_call(pkts, client_flag)
+      return unless @before_send
+      pkts.delete_if do |pkt|
+        begin
+          ret = @before_send.call( pkt, client_flag )
+        rescue Exception => e
+          DIY::Logger.warn("UserError Catch: " + error = BeforeSendCallError.new(e) )
+          error.backtrace.each do |msg|
+            DIY::Logger.info(msg)
+          end
+          raise error
+        end
+        ! ret
+      end
+      pkts
     end
     
     def before_send(&block)

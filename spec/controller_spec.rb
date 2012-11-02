@@ -41,9 +41,11 @@ describe "Controller" do
     builder = DIY::Builder.new do
       pcapfiles "helper/http.pcap"
       use DIY::SimpleStrategy.new
-      timeout 10
+      timeout 1
     end
+    #~ builder.run
     lambda { builder.run }.should_not raise_error  
+    builder.instance_variable_get("@controller").instance_variable_get("@fail_count").should == 0
   end
   
   it "#run none_hope_skip" do
@@ -62,9 +64,10 @@ describe "Controller" do
       pcapfiles "helper/http.pcap"
       use hope_skip
       use DIY::SimpleStrategy.new
-      timeout 10
+      timeout 2
     end
     lambda { builder.run }.should_not raise_error    
+    builder.instance_variable_get("@controller").instance_variable_get("@fail_count").should == 0
   end
     
   it "#run stragety error" do
@@ -79,9 +82,10 @@ describe "Controller" do
     builder = DIY::Builder.new do
       pcapfiles "helper/http.pcap"
       use wrongUserStragety
-      timeout 10
+      timeout 1
     end
     lambda { builder.run }.should_not raise_error
+    builder.instance_variable_get("@controller").instance_variable_get("@fail_count").should == 1
   end
   
   it "#run before_send error" do
@@ -93,17 +97,21 @@ describe "Controller" do
       pcapfiles "helper/http.pcap"
     end
     lambda { build2.run }.should_not raise_error
+    build2.instance_variable_get("@controller").instance_variable_get("@fail_count").should == 1
   end
   
   it "#run big packet " do
     sleep 1
     build2 = DIY::Builder.new do
-      before_send do |pkt|
+      before_send do |pkt, flag|
         new_pkt = "a" * 10000
+        pkt.content = new_pkt
+        true
       end
       pcapfiles "helper/http.pcap"
     end
     lambda { build2.run }.should_not raise_error  
+    build2.instance_variable_get("@controller").instance_variable_get("@fail_count").should == 1
   end
   
   it "#run stragety fail" do
@@ -120,6 +128,7 @@ describe "Controller" do
       pcapfiles "helper/http.pcap"
     end
     lambda { build2.run }.should_not raise_error  
+    build2.instance_variable_get("@controller").instance_variable_get("@fail_count").should == 1
   end
   
   it "#run with filter" do

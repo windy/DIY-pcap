@@ -94,11 +94,11 @@ module DIY
       @strategies.each { |builder| @strategy_builder.add(builder) }
       find_worker_keepers
       set_filter
-      controller = Controller.new( @client, @server, @offline, @strategy_builder )
-      controller.before_send(&@before_send_hook)
-      controller.timeout(@timeout) if @timeout
-      controller.error_on_stop if @error_on_stop
-      controller.run
+      @controller = Controller.new( @client, @server, @offline, @strategy_builder )
+      @controller.before_send(&@before_send_hook)
+      @controller.timeout(@timeout) if @timeout
+      @controller.error_on_stop if @error_on_stop
+      @controller.run
     end
     
   end
