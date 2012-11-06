@@ -168,15 +168,17 @@ module DIY
     end
     
     def offline_result
-      sprintf "%4d files, %8d packets", @offline.files_size, @offline.now_size
+      sprintf "%4d files, running %8d packets", @offline.files_size, @offline.now_size
     end
     
     def wait_recv_ok(pkts)
-      wait_until(@timeout ||= 10) do
-        if @error_flag
-          raise @error_flag
+      loop do 
+        now_size = pkts.size
+        break if now_size == 0
+        wait_until(@timeout ||= 10) do
+          raise @error_flag if @error_flag
+          pkts.size < now_size
         end
-        pkts.empty?
       end
     end
     
