@@ -124,7 +124,6 @@ module DIY
     end
     
     def client_send(client, pkts)
-      #~ pkt_contents = pkts.collect { |pkt| pkt.content }
       begin
         client.inject(pkts)
       rescue FFI::PCap::LibError =>e
@@ -172,22 +171,18 @@ module DIY
     end
     
     def wait_recv_ok(pkts)
-      loop do 
+      @timeout ||= 10
+      tick = 0
+      until pkts.empty? do
         now_size = pkts.size
-        break if now_size == 0
-        wait_until(@timeout ||= 10) do
-          raise @error_flag if @error_flag
-          pkts.size < now_size
+        raise @error_flag if @error_flag
+        tick += 0.01
+        sleep 0.01
+        if pkts.size < now_size
+          # clear tick time if at least one packet has passed the judgement of stratgies.
+          tick = 0
         end
-      end
-    end
-    
-    def wait_until( timeout = 10, &block )
-      Timeout.timeout(timeout, DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{timeout} seconds") ) do
-        loop do
-          break if block.call
-          sleep 0.01
-        end
+        raise DIY::HopePacketTimeoutError.new("hope packet wait timeout after #{@timeout} seconds") if !pkts.empty? && tick >= @timeout
       end
     end
     
