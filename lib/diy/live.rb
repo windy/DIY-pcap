@@ -4,9 +4,12 @@ require 'diy/ext/capture_wrapper'
 
 module DIY
   class Live
-    def initialize(device_name)
+    def initialize(device_name, args = {})
       DIY::Logger.info( "Initialize Live: #{device_name}" )
-      @live = FFI::PCap::Live.new(:dev=>device_name, :handler => FFI::PCap::CopyHandler, :promisc => true, :timeout=>1)
+      
+      default = { :dev=>device_name, :handler => FFI::PCap::CopyHandler, :promisc => true, :timeout=>1 }
+      default = merge_arguments(default, args)
+      @live = FFI::PCap::Live.new(default)
       DIY::Logger.info( "Listen on:  #{net} " )
       @running = false
       @live.non_blocking= true
@@ -43,6 +46,10 @@ module DIY
     
     def net
       @live.network + " / " + @live.netmask
+    end
+    
+    def merge_arguments(default, new)
+      default.merge(new)
     end
     
   end # end of class Live

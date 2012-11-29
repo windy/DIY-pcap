@@ -12,6 +12,7 @@ end
 
 options = {
   :ip => "0.0.0.0:#{$_PORT}",
+  :promisc => true,
 }
 
 OptionParser.new do |opts|
@@ -32,6 +33,11 @@ OptionParser.new do |opts|
     require 'diy/device_finder'
     DIY::DeviceFinder.pp_devices
     exit 0
+  end
+  
+  opts.on_tail("-o", "--non-promious", "Disable device's promiscuous mode", "default is enabled") do
+    DIY::Logger.info "Device's promiscuous mode is DISABLED"
+    options[:promisc] = false
   end
   
   opts.on_tail("--timer","Use TimerIdConv module instead of DRb's default idconv") do
@@ -70,7 +76,7 @@ else
     require 'diy/device_finder'
     device_name = DIY::DeviceFinder.smart_select
   end
-  device = DIY::Live.new(device_name)
+  device = DIY::Live.new(device_name, :promisc=> options[:promisc])
   worker = DIY::Worker.new(device)
   worker_keeper = DIY::WorkerKeeper.new(worker, uri)
   if options[:timer]
