@@ -8,12 +8,12 @@ DIY-pcap
 ## 使用方法,完全自定义发包 ( 一 )
 
 1. 安装很简单
+  * 安装 [winpcap4.1.2](http://www.winpcap.org/install/default.htm), 或者简单点安装`wireshark`即可.
+  * 安装 DIY-pcap, 命令如下:
 
-    ```bash
-  gem install DIY-pcap
-```
+            gem install DIY-pcap
         
-    服务端与本机需要同时安装.
+  服务端与本机需要同时安装.
         
 2. 准备好要发送和接收的数据放在 `pcaps` 目录下, 创建文件 spec.rb:
 
