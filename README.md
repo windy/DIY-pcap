@@ -7,7 +7,7 @@ DIY-pcap
 
 ## 使用方法,完全自定义发包 ( 一 )
 
-1. 安装很简单
+1. 安装很简单 ( 当前仅在 windows 下测试过, Ruby 版本使用的 Ruby186 / Ruby187 均可. 但理论上支持 Linux 与 Ruby19x, 如果不工作, 请告之. )
   * 安装 [winpcap4.1.2](http://www.winpcap.org/install/default.htm), 或者简单点安装`wireshark`即可.
   * 安装 DIY-pcap, 命令如下:
 
