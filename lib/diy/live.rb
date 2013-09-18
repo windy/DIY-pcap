@@ -48,8 +48,8 @@ module DIY
       @live.network + " / " + @live.netmask
     end
     
-    def merge_arguments(default, new)
-      default.merge(new)
+    def merge_arguments(default, new_arg)
+      default.merge(new_arg)
     end
     
   end # end of class Live
